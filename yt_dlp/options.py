@@ -1227,6 +1227,12 @@ def create_parser():
             'Quiet, but print JSON information for each video. Simulate unless --no-simulate is used. '
             'See "OUTPUT TEMPLATE" for a description of available keys'))
     verbosity.add_option(
+        '--decode-web-json',
+        dest='decode_web_json', metavar='JSON',
+        help=(
+            'Decode the provided JSON string and process it. '
+            'Returns the processed JSON data.'))
+    verbosity.add_option(
         '-J', '--dump-single-json',
         action='store_true', dest='dump_single_json', default=False,
         help=(

@@ -10,6 +10,7 @@ import itertools
 import json
 import math
 import os.path
+from queue import Full
 import random
 import re
 import shlex
@@ -4138,7 +4139,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         for fmt in streaming_formats:
             if fmt.get('targetDurationSec'):
                 continue
-
+            firstLevelIndex = int_or_none(fmt.get('firstLevelIndex'))
+            secondLevelIndex = int_or_none(fmt.get('secondLevelIndex'))
             itag = str_or_none(fmt.get('itag'))
             audio_track = fmt.get('audioTrack') or {}
             stream_id = (itag, audio_track.get('id'), fmt.get('isDrc'))
@@ -4226,8 +4228,10 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 self.report_warning(
                     f'{video_id}: Some formats are possibly damaged. They will be deprioritized', only_once=True)
 
-            client_name = fmt[STREAMING_DATA_CLIENT_NAME]
-            po_token = fmt.get(STREAMING_DATA_PO_TOKEN)
+            # client_name = fmt[STREAMING_DATA_CLIENT_NAME]
+            # po_token = fmt.get(STREAMING_DATA_PO_TOKEN)
+            client_name = 'mweb'
+            po_token = Full
 
             if po_token:
                 fmt_url = update_url_query(fmt_url, {'pot': po_token})
@@ -4267,6 +4271,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 'language_preference': PREFERRED_LANG_VALUE if is_original else 5 if is_default else -10 if is_descriptive else -1,
                 # Strictly de-prioritize broken, damaged and 3gp formats
                 'preference': -20 if require_po_token else -10 if is_damaged else -2 if itag == '17' else None,
+                'firstLevelIndex': firstLevelIndex,
+                'secondLevelIndex': secondLevelIndex,
             }
             mime_mobj = re.match(
                 r'((?:[^/]+)/(?:[^;]+))(?:;\s*codecs="([^"]+)")?', fmt.get('mimeType') or '')
@@ -4362,8 +4368,10 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         subtitles = {}
         for sd in streaming_data:
-            client_name = sd[STREAMING_DATA_CLIENT_NAME]
-            po_token = sd.get(STREAMING_DATA_PO_TOKEN)
+            # client_name = sd[STREAMING_DATA_CLIENT_NAME]
+            # po_token = sd.get(STREAMING_DATA_PO_TOKEN)
+            client_name = 'mweb'
+            po_token = Full
             hls_manifest_url = 'hls' not in skip_manifests and sd.get('hlsManifestUrl')
             if hls_manifest_url:
                 if po_token:
@@ -4429,6 +4437,50 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                     'duration': min(fragment_duration, duration - (j * fragment_duration)),
                 } for j in range(math.ceil(fragment_count))],
             }
+
+    def decode_formats(self, safePlayerData):
+        # 初始化 data_dict
+        data_dict = None
+        try:
+            # 尝试直接加载 JSON
+            data_dict = json.loads(safePlayerData)
+            # print("xxxx-->成功解析数据！")
+        except json.JSONDecodeError as e:
+            # print(f"xxxx-->JSON 解析失败，错误: {e}")
+            # 尝试修复 JSON 格式
+            try:
+                # 替换嵌套引号问题
+                safePlayerData_fixed = safePlayerData.strip('"').replace('\"', '"')
+                data_dict = json.loads(safePlayerData_fixed)
+                # print("修复后的数据成功解析！")
+            except json.JSONDecodeError as inner_e:
+                print(f"修复后仍然失败: {inner_e}")
+        # 判断 data_dict 是否为空或 None
+        if not data_dict:  # 检查 None 或空字典
+            # print("data_dict 为 None 或空，无法继续处理")
+            return None
+        # print(f"xxxx-->data_dict:{data_dict}")
+        # 提取数据逻辑
+        player_version = traverse_obj(data_dict, ("playerVersion"), default=None)
+        video_id = traverse_obj(data_dict, ("videoDetails", "videoId"), default=None)
+        # print(f"xxxx-->video_id: {video_id}")
+        micro_format = traverse_obj(data_dict, ("microformat", "playerMicroformatRenderer"), default=None)
+        # print(f"xxxx-->micro_format: {micro_format}")
+        video_details = traverse_obj(data_dict, ("videoDetails"), default=None)
+        # print(f"xxxx-->video_details: {video_details}")
+        video_duration = traverse_obj(data_dict, ("videoDetails", "lengthSeconds"), default=None)
+        video_duration_int = 0
+        if video_duration is not None:  # 避免对 None 执行转换
+            video_duration_int = int(video_duration)
+        # print(f"xxxx-->video_duration_int: {video_duration_int}")
+        player_url = self._fix_download_player_url(player_version)
+        # print(f"xxxx-->player_url: {player_url}")
+        allData = self._list_formats(video_id, [micro_format], [video_details], [data_dict], player_url, video_duration_int)
+        return allData
+    
+    def _fix_download_player_url(self, player_version):
+        if player_version:
+                return f'https://www.youtube.com/s/player/{player_version}/player_ias.vflset/en_US/base.js'
 
     def _download_player_responses(self, url, smuggled_data, video_id, webpage_url):
         webpage = None
@@ -4561,6 +4613,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         live_broadcast_details, live_status, streaming_data, formats, automatic_captions = \
             self._list_formats(video_id, microformats, video_details, player_responses, player_url, duration)
+        for format in formats :
+            print(f"---format: {format}")
         if live_status == 'post_live':
             self.write_debug(f'{video_id}: Video is in Post-Live Manifestless mode')
 
