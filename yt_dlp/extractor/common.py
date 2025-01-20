@@ -1121,6 +1121,12 @@ class InfoExtractor:
         def download_content(self, url_or_request, video_id, note=note, errnote=errnote, transform_source=None,
                              fatal=True, encoding=None, data=None, headers={}, query={}, expected_status=None,
                              impersonate=None, require_impersonation=False):
+            print(f"xxx-->url_or_request: {url_or_request}")
+            print(f"xxx-->video_id: {video_id}")
+            print(f"xxx-->note: {note}")
+            print(f"xxx-->data: {data}")
+            print(f"xxx-->headers: {headers}")
+            print(f"xxx-->query: {query}")
             if self.get_param('load_pages'):
                 url_or_request = self._create_request(url_or_request, data, headers, query)
                 filename = self._request_dump_filename(url_or_request.url, video_id, url_or_request.data)
@@ -3883,6 +3889,7 @@ class InfoExtractor:
         @param default      The default value to return when the key is not present (default: [])
         @param casesense    When false, the values are converted to lower case
         '''
+        print(f"xxx-->ie_key: {ie_key}")
         ie_key = ie_key if isinstance(ie_key, str) else (ie_key or self).ie_key()
         val = traverse_obj(self._downloader.params, ('extractor_args', ie_key.lower(), key))
         if val is None:

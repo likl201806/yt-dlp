@@ -300,13 +300,15 @@ def _split_innertube_client(client_name):
     if base:
         return variant, base[0], variant
     base, *variant = client_name.split('_', 1)
+    print(f"======_split_innertube_client input client_name: {client_name}, output client_name: {client_name}, base: {base}, variant: {variant[0] if variant else None}")
     return client_name, base, variant[0] if variant else None
 
 
 def short_client_name(client_name):
     main, *parts = _split_innertube_client(client_name)[0].split('_')
-    return join_nonempty(main[:4], ''.join(x[0] for x in parts)).upper()
-
+    short_client = join_nonempty(main[:4], ''.join(x[0] for x in parts)).upper()
+    print(f"======short_client_name input client_name: {client_name}, output short_client: {short_client}")
+    return short_client
 
 def build_innertube_clients():
     THIRD_PARTY = {
@@ -332,6 +334,7 @@ def build_innertube_clients():
             ytcfg['priority'] -= 2
         elif variant:
             ytcfg['priority'] -= 3
+    print("======build_innertube_clients")
 
 
 build_innertube_clients()
@@ -519,19 +522,27 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     _NETRC_MACHINE = 'youtube'
 
     def ucid_or_none(self, ucid):
-        return self._search_regex(rf'^({self._YT_CHANNEL_UCID_RE})$', ucid, 'UC-id', default=None)
+        isucid = self._search_regex(rf'^({self._YT_CHANNEL_UCID_RE})$', ucid, 'UC-id', default=None)
+        print(f"======ucid_or_none input ucid: {ucid}, output: isucid: {isucid}")
+        return isucid
 
     def handle_or_none(self, handle):
-        return self._search_regex(rf'^({self._YT_HANDLE_RE})$', urllib.parse.unquote(handle or ''),
+        ishandle = self._search_regex(rf'^({self._YT_HANDLE_RE})$', urllib.parse.unquote(handle or ''),
                                   '@-handle', default=None)
+        print(f"======handle_or_none input handle: {handle}, output ishandle: {ishandle}")
+        return ishandle
 
     def handle_from_url(self, url):
-        return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_HANDLE_RE})',
+        urlhandle = self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_HANDLE_RE})',
                                   urllib.parse.unquote(url or ''), 'channel handle', default=None)
+        print(f"======handle_from_url input url: {url}, output urlhandle: {urlhandle}")
+        return 
 
     def ucid_from_url(self, url):
-        return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_CHANNEL_UCID_RE})',
+        urlucid = self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_CHANNEL_UCID_RE})',
                                   url, 'channel id', default=None)
+        print(f"======ucid_from_url input url: {url}, output urlucid: {urlucid}")
+        return urlucid
 
     @functools.cached_property
     def _preferred_lang(self):
@@ -549,15 +560,19 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         elif preferred_lang != 'en':
             self.report_warning(
                 f'Preferring "{preferred_lang}" translated fields. Note that some metadata extraction may fail or be incorrect.')
+        print(f"=====_preferred_lang(@functools.cached_property): {preferred_lang}")
         return preferred_lang
 
     def _initialize_consent(self):
         cookies = self._get_cookies('https://www.youtube.com/')
         if cookies.get('__Secure-3PSID'):
+            print(f"======_initialize_consent cookies存在__Secure-3PSID")
             return
         socs = cookies.get('SOCS')
         if socs and not socs.value.startswith('CAA'):  # not consented
+            print(f"======_initialize_consent cookies的SOCS以CAA开头，用户不同意隐私条款")
             return
+        print(f"======_initialize_consent 设置新的cookie")
         self._set_cookie('.youtube.com', 'SOCS', 'CAI', secure=True)  # accept all (required for mixes)
 
     def _initialize_pref(self):
@@ -571,9 +586,11 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
                 self.report_warning('Failed to parse user PREF cookie' + bug_reports_message())
         pref.update({'hl': self._preferred_lang or 'en', 'tz': 'UTC'})
         self._set_cookie('.youtube.com', name='PREF', value=urllib.parse.urlencode(pref))
+        print(f"======_initialize_pref cookie增加PREF")
 
     def _initialize_cookie_auth(self):
         yt_sapisid, yt_1psapisid, yt_3psapisid = self._get_sid_cookies()
+        print(f"======_initialize_cookie_auth yt_sapisid: {yt_sapisid}, yt_1psapisid: {yt_1psapisid}, yt_3psapisid: {yt_3psapisid}")
         if yt_sapisid or yt_1psapisid or yt_3psapisid:
             self.write_debug('Found YouTube account cookies')
 
@@ -582,8 +599,10 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
         self._initialize_consent()
         self._initialize_cookie_auth()
         self._check_login_required()
+        print("======_real_initialize 先后执行_initialize_pref、_initialize_consent、_initialize_cookie_auth、_check_login_required")
 
     def _perform_login(self, username, password):
+        print(f"======_perform_login input username: {username}, password: {password}")
         if username.startswith('oauth'):
             raise ExtractorError(
                 f'Login with OAuth is no longer supported. {self._youtube_login_hint}', expected=True)
@@ -593,6 +612,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     @property
     def _youtube_login_hint(self):
+        print("======_youtube_login_hint(@property)")
         return (f'{self._login_hint(method="cookies")}. Also see  '
                 'https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  '
                 'for tips on effectively exporting YouTube cookies')
@@ -4132,7 +4152,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             all_formats = True
             self._downloader.deprecated_feature('[youtube] include_duplicate_formats extractor argument is deprecated. '
                                                 'Use formats=duplicate extractor argument instead')
-
+        print(f"xxx-->format_types: {format_types}")
         def build_fragments(f):
             return LazyList({
                 'url': update_url_query(f['url'], {
@@ -4181,10 +4201,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 continue
 
             fmt_url = fmt.get('url')
+            print(f"xxx-->fmt_url: {fmt_url}")
             if not fmt_url:
                 sc = urllib.parse.parse_qs(fmt.get('signatureCipher'))
                 fmt_url = url_or_none(try_get(sc, lambda x: x['url'][0]))
                 encrypted_sig = try_get(sc, lambda x: x['s'][0])
+                print(f"xxx--> origin_url: {fmt_url}, encrypted_sig(s=): {encrypted_sig}")
                 if not all((sc, fmt_url, player_url, encrypted_sig)):
                     continue
                 try:
@@ -4205,7 +4227,9 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                     fmt_url = update_url_query(fmt_url, {
                         'n': decrypt_nsig(query['n'][0], video_id, player_url),
                     })
+                    print("xxx-->n解密成功")
                 except ExtractorError as e:
+                    print(f"xxx-->n解密失败: {e}")
                     phantomjs_hint = ''
                     if isinstance(e, JSInterpreter.Exception):
                         phantomjs_hint = (f'         Install {self._downloader._format_err("PhantomJS", self._downloader.Styles.EMPHASIS)} '
