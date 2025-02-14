@@ -1151,6 +1151,7 @@ class InfoExtractor:
                 'impersonate': impersonate,
                 'require_impersonation': require_impersonation,
             }
+            print(f"xxx-->request url: {url_or_request}, header: {headers}, data: {data}")
             if parser is None:
                 kwargs.pop('transform_source')
             # The method is fetched by name so subclasses can override _download_..._handle

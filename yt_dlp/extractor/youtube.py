@@ -4346,10 +4346,10 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 self.report_warning(
                     f'{video_id}: Some formats are possibly damaged. They will be deprioritized', only_once=True)
 
-            # client_name = fmt[STREAMING_DATA_CLIENT_NAME]
-            # po_token = fmt.get(STREAMING_DATA_INITIAL_PO_TOKEN)
-            client_name = 'mweb'
-            po_token = Full
+            client_name = fmt[STREAMING_DATA_CLIENT_NAME]
+            po_token = fmt.get(STREAMING_DATA_INITIAL_PO_TOKEN)
+            # client_name = 'mweb'
+            # po_token = Full
 
             if po_token:
                 fmt_url = update_url_query(fmt_url, {'pot': po_token})
@@ -4396,6 +4396,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 'firstLevelIndex': firstLevelIndex,
                 'secondLevelIndex': secondLevelIndex,
             }
+            print(f"xxx-->play url: client name: {client_name}, url: {fmt_url}")
             mime_mobj = re.match(
                 r'((?:[^/]+)/(?:[^;]+))(?:;\s*codecs="([^"]+)")?', fmt.get('mimeType') or '')
             if mime_mobj:
@@ -4494,10 +4495,10 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         subtitles = {}
         for sd in streaming_data:
-            # client_name = sd[STREAMING_DATA_CLIENT_NAME]
-            # po_token = sd.get(STREAMING_DATA_INITIAL_PO_TOKEN)
-            client_name = 'mweb'
-            po_token = Full
+            client_name = sd[STREAMING_DATA_CLIENT_NAME]
+            po_token = sd.get(STREAMING_DATA_INITIAL_PO_TOKEN)
+            # client_name = 'mweb'
+            # po_token = Full
             hls_manifest_url = 'hls' not in skip_manifests and sd.get('hlsManifestUrl')
             if hls_manifest_url:
                 if po_token:
