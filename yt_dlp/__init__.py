@@ -813,6 +813,7 @@ def parse_options(argv=None):
         'print_to_file': opts.print_to_file,
         'forcejson': opts.dumpjson or opts.print_json,
         'dump_single_json': opts.dump_single_json,
+        'decode_web_json': opts.decode_web_json,
         'force_write_download_archive': opts.force_write_download_archive,
         'simulate': (print_only or any_getting or None) if opts.simulate is None else opts.simulate,
         'skip_download': opts.skip_download,
@@ -989,6 +990,17 @@ def _real_main(argv=None):
     # See https://github.com/yt-dlp/yt-dlp/issues/2191
     if opts.ffmpeg_location:
         FFmpegPostProcessor._ffmpeg_location.set(opts.ffmpeg_location)
+
+    if opts.decode_web_json:
+        with YoutubeDL(ydl_opts) as ydl:
+            processed_json = ydl.decode_web_json(opts.decode_web_json)
+            if processed_json is not None:
+                import json
+                write_string(
+                    json.dumps(processed_json, indent=4, ensure_ascii=False),
+                    out=sys.stdout
+                )
+        return
 
     with YoutubeDL(ydl_opts) as ydl:
         pre_process = opts.update_self or opts.rm_cachedir
