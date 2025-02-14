@@ -3178,6 +3178,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         # Read from filesystem cache
         func_id = f'js_{player_id}_{self._signature_cache_id(example_sig)}'
+        print(f"xxx-->player_id: {player_id}, func_id: {func_id}")
         assert os.path.basename(func_id) == func_id
 
         self.write_debug(f'Extracting signature function {func_id}')
@@ -3190,6 +3191,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             test_string = ''.join(map(chr, range(len(example_sig))))
             cache_spec = [ord(c) for c in res(test_string)]
             self.cache.store('youtube-sigfuncs', func_id, cache_spec)
+        print(f"xxx-->cache_spec: {cache_spec}")
 
         return lambda s: ''.join(s[i] for i in cache_spec)
 
@@ -3298,10 +3300,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             raise ExtractorError('Unable to extract nsig function code', cause=e)
         if self.get_param('youtube_print_sig_code'):
             self.to_screen(f'Extracted nsig function from {player_id}:\n{func_code[1]}\n')
+        print(f"xxx-->_decrypt_nsig func_code: {func_code}")
 
         try:
             extract_nsig = self._cached(self._extract_n_function_from_code, 'nsig func', player_url)
             ret = extract_nsig(jsi, func_code)(s)
+            print(f"xxx-->n解密成功, 解密前: {s}, 解密后: {ret}")
         except JSInterpreter.Exception as e:
             try:
                 jsi = PhantomJSwrapper(self, timeout=5000)
@@ -3316,6 +3320,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
             ret = jsi.execute(
                 f'console.log(function({", ".join(args)}) {{ {func_body} }}({s!r}));',
                 video_id=video_id, note='Executing signature code').strip()
+            print(f"xxx-->n初次解密失败, 再次解密成功, 解密前: {s}, 解密后: {ret}")
 
         self.write_debug(f'Decrypted nsig {s} => {ret}')
         return ret
@@ -3376,6 +3381,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         if func_code:
             return jsi, player_id, func_code
+        print(f"xxx-->_extract_n_function_code func_code为空, func_name: {func_name}, func_code: {func_name}")
 
         func_name = self._extract_n_function_name(jscode, player_url=player_url)
 
@@ -4564,37 +4570,34 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         try:
             # 尝试直接加载 JSON
             data_dict = json.loads(safePlayerData)
-            # print("xxxx-->成功解析数据！")
+            print("xxxx-->成功解析数据！")
         except json.JSONDecodeError as e:
-            # print(f"xxxx-->JSON 解析失败，错误: {e}")
+            print(f"xxxx-->JSON 解析失败，错误: {e}")
             # 尝试修复 JSON 格式
             try:
                 # 替换嵌套引号问题
                 safePlayerData_fixed = safePlayerData.strip('"').replace('\"', '"')
                 data_dict = json.loads(safePlayerData_fixed)
-                # print("修复后的数据成功解析！")
+                print("修复后的数据成功解析！")
             except json.JSONDecodeError as inner_e:
                 print(f"修复后仍然失败: {inner_e}")
         # 判断 data_dict 是否为空或 None
         if not data_dict:  # 检查 None 或空字典
-            # print("data_dict 为 None 或空，无法继续处理")
+            print("data_dict 为 None 或空，无法继续处理")
             return None
-        # print(f"xxxx-->data_dict:{data_dict}")
+        print(f"xxxx-->data_dict:{data_dict}")
         # 提取数据逻辑
         player_version = traverse_obj(data_dict, ("playerVersion"), default=None)
+        signature_timestamp = traverse_obj(data_dict, ("signatureTimestamp"), default=None)
+        print(f"xxxx-->playerVersion: {player_version}, signatureTimestamp: {signature_timestamp}")
         video_id = traverse_obj(data_dict, ("videoDetails", "videoId"), default=None)
-        # print(f"xxxx-->video_id: {video_id}")
         micro_format = traverse_obj(data_dict, ("microformat", "playerMicroformatRenderer"), default=None)
-        # print(f"xxxx-->micro_format: {micro_format}")
         video_details = traverse_obj(data_dict, ("videoDetails"), default=None)
-        # print(f"xxxx-->video_details: {video_details}")
         video_duration = traverse_obj(data_dict, ("videoDetails", "lengthSeconds"), default=None)
         video_duration_int = 0
         if video_duration is not None:  # 避免对 None 执行转换
             video_duration_int = int(video_duration)
-        # print(f"xxxx-->video_duration_int: {video_duration_int}")
         player_url = self._fix_download_player_url(player_version)
-        # print(f"xxxx-->player_url: {player_url}")
         allData = self._list_formats(video_id, [micro_format], [video_details], [data_dict], player_url, video_duration_int)
         return allData
     
