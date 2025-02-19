@@ -7,7 +7,7 @@ from ..utils import YoutubeDLError
 if typing.TYPE_CHECKING:
     from .common import RequestHandler, Response
 
-
+# 请求错误
 class RequestError(YoutubeDLError):
     def __init__(
         self,
@@ -53,7 +53,7 @@ class NoSupportingHandlers(RequestError):
 class TransportError(RequestError):
     """Network related errors"""
 
-
+# HTTP错误
 class HTTPError(RequestError):
     def __init__(self, response: Response, redirect_loop=False):
         self.response = response
@@ -68,7 +68,7 @@ class HTTPError(RequestError):
 
     def close(self):
         self.response.close()
-
+    # 表示
     def __repr__(self):
         return f'<HTTPError {self.status}: {self.reason}>'
 
