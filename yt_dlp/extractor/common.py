@@ -3958,7 +3958,8 @@ class InfoExtractor:
         query = urllib.parse.urlparse(url).query
         url = re.sub(r'/(?:manifest|playlist|jwplayer)\.(?:m3u8|f4m|mpd|smil)', '', url)
         mobj = re.search(
-            r'(?:(?:http|rtmp|rtsp)(?P s)?:)?(?P<url>//[^?]+)', url)
+            r'(?:(?:http|rtmp|rtsp)(?P<s>s)?:)?(?P<url>//[^?]+)', url)
+
         url_base = mobj.group('url')
         http_base_url = '{}{}:{}'.format('http', mobj.group('s') or '', url_base)
         formats = []
@@ -4634,14 +4635,13 @@ class InfoExtractor:
         self.to_screen(f'Downloading {playlist_label}{playlist_id} - add --no-playlist to download just the {video_label}{video_id}')
         return True
 
-    # 错误处理  
+    # 错误处理
+    # 处理各种错误情况
+    # - 地区限制
+    # - 年龄限制
+    # - 私密视频
+    # - 删除的视频等
     def _error_or_warning(self, err, _count=None, _retries=0, *, fatal=True):
-        """处理各种错误情况
-        - 地区限制
-        - 年龄限制
-        - 私密视频
-        - 删除的视频等
-        """
         RetryManager.report_retry(
             err, _count or int(fatal), _retries,
             info=self.to_screen, warn=self.report_warning, error=None if fatal else self.report_warning,
