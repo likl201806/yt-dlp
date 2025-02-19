@@ -11,11 +11,11 @@ void main() {
 
   group('YoutubeExtractor', () {
     test('should extract video info', () async {
-      const videoUrl = 'https://www.youtube.com/watch?v=BaW_jenozKc';
+      const videoUrl = 'https://www.youtube.com/watch?v=ijgt1qDQKQA';
       final videoInfo = await extractor.extractVideo(videoUrl);
 
       expect(videoInfo, isA<VideoInfo>());
-      expect(videoInfo.id, equals('BaW_jenozKc'));
+      expect(videoInfo.id, equals('ijgt1qDQKQA'));
       expect(videoInfo.title, isNotEmpty);
       expect(videoInfo.formats, isNotEmpty);
     });

@@ -19,7 +19,9 @@ abstract class YoutubeBaseExtractor {
   static final RegExp _validUrlPattern = RegExp(_VALID_URL);
 
   // YouTube API endpoints
+  // ignore: constant_identifier_names
   static const String _INNERTUBE_API_URL = YoutubeConstants.INNERTUBE_API_URL;
+  // ignore: constant_identifier_names
   static const String _PLAYER_API_URL = YoutubeConstants.PLAYER_API_URL;
 
   // ignore: constant_identifier_names

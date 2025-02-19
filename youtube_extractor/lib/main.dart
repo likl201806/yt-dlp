@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'extractors/youtube/auth/login_screen.dart';
+import 'pages/edge_cases_page.dart';
+import 'pages/search_test_page.dart';
+import 'pages/suggestion_test_page.dart';
+import 'pages/playlist_test_page.dart';
+import 'pages/video_test_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'YouTube Extractor Demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -28,10 +34,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'YouTube Extractor Demo'),
     );
   }
 }
@@ -55,16 +61,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  String? _accountName;
+  String? _accountEmail;
+  String? _accountPhoto;
 
-  void _incrementCounter() {
+  void _handleLoginComplete({
+    required String accountId,
+    required String accountName,
+    required String accountEmail,
+    required String accountPhoto,
+  }) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _accountName = accountName;
+      _accountEmail = accountEmail;
+      _accountPhoto = accountPhoto;
     });
   }
 
@@ -85,41 +95,153 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+        actions: [
+          if (_accountPhoto != null && _accountPhoto!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(_accountPhoto!),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: ListView(
+        children: [
+          // 登录状态显示
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '登录状态',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                if (_accountName != null) ...[
+                  Text('用户名: $_accountName'),
+                  Text('邮箱: $_accountEmail'),
+                ] else
+                  const Text('未登录'),
+              ],
+            ),
+          ),
+          const Divider(),
+          // 功能测试列表
+          ListTile(
+            title: const Text('登录/切换账号'),
+            leading: const Icon(Icons.login),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => YoutubeLoginScreen(
+                    onLoginComplete: _handleLoginComplete,
+                  ),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          // 视频提取测试
+          ListTile(
+            title: const Text('视频提取测试'),
+            subtitle: const Text('测试视频信息提取功能'),
+            leading: const Icon(Icons.video_library),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VideoTestPage(),
+                      ),
+                    );
+                  }
+                : null,
+          ),
+          // 播放列表测试
+          ListTile(
+            title: const Text('播放列表测试'),
+            subtitle: const Text('测试播放列表提取功能'),
+            leading: const Icon(Icons.playlist_play),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PlaylistTestPage(),
+                      ),
+                    );
+                  }
+                : null,
+          ),
+          // 搜索测试
+          ListTile(
+            title: const Text('搜索测试'),
+            subtitle: const Text('测试搜索功能'),
+            leading: const Icon(Icons.search),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchTestPage(),
+                      ),
+                    );
+                  }
+                : null,
+          ),
+          // 建议测试
+          ListTile(
+            title: const Text('搜索建议测试'),
+            subtitle: const Text('测试搜索建议功能'),
+            leading: const Icon(Icons.lightbulb_outline),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SuggestionTestPage(),
+                      ),
+                    );
+                  }
+                : null,
+          ),
+          // 边缘情况测试
+          ListTile(
+            title: const Text('边缘情况测试'),
+            subtitle: const Text('测试各种特殊情况'),
+            leading: const Icon(Icons.warning),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EdgeCasesPage(),
+                      ),
+                    );
+                  }
+                : null,
+          ),
+          // 性能测试
+          ListTile(
+            title: const Text('性能测试'),
+            subtitle: const Text('测试API性能'),
+            leading: const Icon(Icons.speed),
+            enabled: _accountName != null,
+            onTap: _accountName != null
+                ? () {
+                    // TODO: 导航到性能测试页面
+                  }
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -21,10 +21,13 @@ class YoutubeConstants {
   };
 
   // API Endpoints
+  // ignore: constant_identifier_names
   static const String INNERTUBE_API_URL = 'https://www.youtube.com/youtubei/v1';
+  // ignore: constant_identifier_names
   static const String PLAYER_API_URL = 'https://www.youtube.com/iframe_api';
 
   // Default Headers
+  // ignore: constant_identifier_names
   static const Map<String, String> DEFAULT_HEADERS = {
     'X-YouTube-Client-Name': '1',
     'X-YouTube-Client-Version': '2.20240101',
