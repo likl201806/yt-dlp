@@ -577,6 +577,7 @@ class InfoExtractor:
     _VALID_URL = None
     _EMBED_REGEX = []
 
+    # 返回登录提示信息，根据不同的认证方法提供相应的提示
     def _login_hint(self, method=NO_DEFAULT, netrc=None):
         password_hint = f'--username and --password, --netrc-cmd, or --netrc ({netrc or self._NETRC_MACHINE}) to provide account credentials'
         cookies_hint = 'See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies'
@@ -588,6 +589,7 @@ class InfoExtractor:
             'session_cookies': f'Use --cookies for the authentication (--cookies-from-browser might not work). {cookies_hint}',
         }[method if method is not NO_DEFAULT else 'any' if self.supports_login() else 'cookies']
 
+    # 构造函数，接收一个可选的下载器（YoutubeDL实例）
     def __init__(self, downloader=None):
         """Constructor. Receives an optional downloader (a YoutubeDL instance).
         If a downloader is not passed during initialization,
@@ -597,6 +599,7 @@ class InfoExtractor:
         self._printed_messages = set()
         self.set_downloader(downloader)
 
+    # 匹配有效的URL，返回匹配的正则表达式对象
     @classmethod
     def _match_valid_url(cls, url):
         if cls._VALID_URL is False:
@@ -608,6 +611,9 @@ class InfoExtractor:
             cls._VALID_URL_RE = tuple(map(re.compile, variadic(cls._VALID_URL)))
         return next(filter(None, (regex.match(url) for regex in cls._VALID_URL_RE)), None)
 
+    # 检查给定的URL是否适合当前提取器处理
+    # 返回True表示可以处理,False表示不能处理
+    # 这个方法必须导入所有需要的依赖(除了其他提取器),以确保lazy_extractors正常工作
     @classmethod
     def suitable(cls, url):
         """Receives a URL and returns True if suitable for this IE."""
@@ -615,10 +621,14 @@ class InfoExtractor:
         # so that lazy_extractors works correctly
         return cls._match_valid_url(url) is not None
 
+    # 从URL中提取视频ID
+    # 使用正则表达式匹配URL,返回匹配到的ID部分
     @classmethod
     def _match_id(cls, url):
         return cls._match_valid_url(url).group('id')
 
+    # 尝试从URL获取临时ID
+    # 如果提取失败则返回None
     @classmethod
     def get_temp_id(cls, url):
         try:
@@ -626,15 +636,21 @@ class InfoExtractor:
         except (IndexError, AttributeError):
             return None
 
+    # 获取提取器的工作状态
+    # 返回_WORKING属性值,表示该提取器是否可用
     @classmethod
     def working(cls):
         """Getter method for _WORKING."""
         return cls._WORKING
 
+    # 检查提取器是否支持登录功能
+    # 通过检查是否设置了_NETRC_MACHINE来判断
     @classmethod
     def supports_login(cls):
         return bool(cls._NETRC_MACHINE)
 
+    # 初始化提取器实例
+    # 包括认证、地理位置绕过等初始化操作
     def initialize(self):
         """Initializes an instance (authentication, etc)."""
         self._printed_messages = set()
@@ -653,6 +669,12 @@ class InfoExtractor:
             self._real_initialize()
             self._ready = True
 
+    # 初始化地理位置绕过机制
+    # 通过伪造X-Forwarded-For HTTP头来绕过地理限制
+    # 从提供的国家列表中随机选择一个国家,生成该国家的随机IP
+    # geo_bypass_context参数包含:
+    # - countries: 不受地理限制的国家列表
+    # - ip_blocks: CIDR表示法的不受限制IP块列表
     def _initialize_geo_bypass(self, geo_bypass_context):
         """
         Initialize geo restriction bypass mechanism.
@@ -736,6 +758,13 @@ class InfoExtractor:
                 self._downloader.write_debug(
                     f'Using fake IP {self._x_forwarded_for_ip} ({country.upper()}) as X-Forwarded-For')
 
+    # 提取URL信息并以字典列表形式返回
+    # 主要流程:
+    # 1. 初始化提取器
+    # 2. 提取URL信息
+    # 3. 处理地理限制
+    # 4. 处理字幕信息
+    # 5. 处理各种可能的错误
     def extract(self, url):
         """Extracts URL information and returns it in list of dicts."""
         try:
@@ -770,6 +799,12 @@ class InfoExtractor:
         except (KeyError, StopIteration) as e:
             raise ExtractorError('An extractor error has occurred.', cause=e, video_id=self.get_temp_id(url))
 
+    # 尝试使用伪造IP重试地理限制的内容
+    # 如果满足以下条件则尝试使用随机IP:
+    # 1. 未指定特定国家
+    # 2. 允许地理位置绕过
+    # 3. 当前没有使用伪造IP
+    # 4. 有可用的国家列表
     def __maybe_fake_ip_and_retry(self, countries):
         if (not self.get_param('geo_bypass_country', None)
                 and self._GEO_BYPASS
@@ -785,43 +820,63 @@ class InfoExtractor:
                 return True
         return False
 
+    # 设置下载器实例
+    # 将YoutubeDL实例设置为此提取器的下载器
     def set_downloader(self, downloader):
         """Sets a YoutubeDL instance as the downloader for this IE."""
         self._downloader = downloader
 
+    # 获取下载器的缓存属性
     @property
     def cache(self):
         return self._downloader.cache
 
+    # 获取下载器的cookie jar属性
     @property
     def cookiejar(self):
         return self._downloader.cookiejar
 
+    # 登录前的初始化操作
+    # 子类可重写此方法实现特定的初始化逻辑
     def _initialize_pre_login(self):
         """ Initialization before login. Redefine in subclasses."""
         pass
 
+    # 执行用户名密码登录
+    # 子类需要重写此方法实现具体的登录逻辑
     def _perform_login(self, username, password):
         """ Login with username and password. Redefine in subclasses."""
         pass
 
+    # 实际的初始化过程
+    # 子类可重写此方法实现特定的初始化逻辑
     def _real_initialize(self):
         """Real initialization process. Redefine in subclasses."""
         pass
 
+    # 实际的提取过程
+    # 子类必须实现此方法来定义具体的提取逻辑
     def _real_extract(self, url):
         """Real extraction process. Redefine in subclasses."""
         raise NotImplementedError('This method must be implemented by subclasses')
 
+    # 获取InfoExtractor的标识符
+    # 返回类名去掉末尾的"IE"
     @classmethod
     def ie_key(cls):
         """A string for getting the InfoExtractor with get_info_extractor"""
         return cls.__name__[:-2]
 
+    # 获取提取器名称
+    # 返回类名去掉末尾的"IE"
     @classproperty
     def IE_NAME(cls):
         return cls.__name__[:-2]
 
+    # 检查HTTP错误状态码是否可接受
+    # 参数:
+    # - err: HTTPError实例
+    # - expected_status: 预期的状态码(可以是数字、函数或None)
     @staticmethod
     def __can_accept_status_code(err, expected_status):
         assert isinstance(err, HTTPError)
@@ -832,6 +887,13 @@ class InfoExtractor:
         else:
             return err.status in variadic(expected_status)
 
+    # 创建HTTP请求对象
+    # 参数:
+    # - url_or_request: URL字符串或Request对象
+    # - data: POST数据
+    # - headers: HTTP头
+    # - query: URL查询参数
+    # - extensions: 扩展参数
     def _create_request(self, url_or_request, data=None, headers=None, query=None, extensions=None):
         if isinstance(url_or_request, urllib.request.Request):
             self._downloader.deprecation_warning(
@@ -844,6 +906,19 @@ class InfoExtractor:
         url_or_request.update(data=data, headers=headers, query=query, extensions=extensions)
         return url_or_request
 
+    # 发送网页请求并返回响应句柄
+    # 参数:
+    # - url_or_request: URL或请求对象
+    # - video_id: 视频ID
+    # - note: 显示的提示信息
+    # - errnote: 错误提示信息
+    # - fatal: 错误是否致命
+    # - data: POST数据
+    # - headers: HTTP头
+    # - query: URL查询参数
+    # - expected_status: 预期的HTTP状态码
+    # - impersonate: 模拟浏览器标识
+    # - require_impersonation: 是否要求模拟
     def _request_webpage(self, url_or_request, video_id, note=None, errnote=None, fatal=True, data=None,
                          headers=None, query=None, expected_status=None, impersonate=None, require_impersonation=False):
         """
@@ -918,6 +993,20 @@ class InfoExtractor:
                 self.report_warning(errmsg)
                 return False
 
+    # 下载网页内容并返回网页内容和URL句柄
+    # 参数说明:
+    # - url_or_request: 字符串URL或Request对象
+    # - video_id: 视频/播放列表/项目标识符
+    # - note: 下载前显示的提示信息
+    # - errnote: 发生错误时显示的提示信息
+    # - fatal: 是否将错误视为致命错误
+    # - encoding: 页面内容的编码方式
+    # - data: POST请求数据
+    # - headers: HTTP请求头
+    # - query: URL查询参数
+    # - expected_status: 可接受的HTTP状态码
+    # - impersonate: 模拟浏览器设置
+    # - require_impersonation: 是否要求必须进行浏览器模拟
     def _download_webpage_handle(self, url_or_request, video_id, note=None, errnote=None, fatal=True,
                                  encoding=None, data=None, headers={}, query={}, expected_status=None,
                                  impersonate=None, require_impersonation=False):
@@ -977,6 +1066,10 @@ class InfoExtractor:
             return False
         return (content, urlh)
 
+    # 从网页内容中猜测编码格式
+    # 参数说明:
+    # - content_type: HTTP响应头中的Content-Type
+    # - webpage_bytes: 网页的字节内容
     @staticmethod
     def _guess_encoding_from_content(content_type, webpage_bytes):
         m = re.match(r'[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+\s*;\s*charset=(.+)', content_type)
@@ -994,6 +1087,12 @@ class InfoExtractor:
 
         return encoding
 
+    # 检查网页是否被屏蔽
+    # 检查多种屏蔽情况：
+    # 1. Websense过滤软件屏蔽
+    # 2. 印度审查屏蔽
+    # 3. 俄罗斯政府屏蔽
+    # 如果检测到屏蔽，抛出带有相应说明的ExtractorError
     def __check_blocked(self, content):
         first_block = content[:512]
         if ('<title>Access to this site is blocked</title>' in content
@@ -1022,6 +1121,11 @@ class InfoExtractor:
                 'Visit http://blocklist.rkn.gov.ru/ for a block reason.',
                 expected=True)
 
+    # 根据URL和视频ID生成请求转储文件名
+    # 参数说明:
+    # - url: 请求的URL
+    # - video_id: 视频ID
+    # - data: 请求数据
     def _request_dump_filename(self, url, video_id, data=None):
         if data is not None:
             data = hashlib.md5(data).hexdigest()
@@ -1039,6 +1143,11 @@ class InfoExtractor:
                 filename = fR'\\?\{absfilepath}'
         return filename
 
+    # 解码网页内容
+    # 参数说明:
+    # - webpage_bytes: 网页字节内容
+    # - encoding: 编码格式
+    # - headers: HTTP响应头
     def __decode_webpage(self, webpage_bytes, encoding, headers):
         if not encoding:
             encoding = self._guess_encoding_from_content(headers.get('Content-Type', ''), webpage_bytes)
@@ -1047,6 +1156,17 @@ class InfoExtractor:
         except LookupError:
             return webpage_bytes.decode('utf-8', 'replace')
 
+    # 读取网页内容
+    # 参数说明:
+    # - urlh: URL句柄
+    # - url_or_request: URL或请求对象
+    # - video_id: 视频ID
+    # - note: 提示信息
+    # - errnote: 错误提示信息
+    # - fatal: 是否致命错误
+    # - prefix: 内容前缀
+    # - encoding: 编码格式
+    # - data: POST数据
     def _webpage_read_content(self, urlh, url_or_request, video_id, note=None, errnote=None, fatal=True,
                               prefix=None, encoding=None, data=None):
         try:
@@ -1077,12 +1197,25 @@ class InfoExtractor:
 
         return content
 
+    # 打印错误信息
+    # 参数说明:
+    # - errnote: 错误提示信息
+    # - fatal: 是否致命错误
+    # - video_id: 视频ID
+    # - err: 错误对象
     def __print_error(self, errnote, fatal, video_id, err):
         if fatal:
             raise ExtractorError(f'{video_id}: {errnote}', cause=err)
         elif errnote:
             self.report_warning(f'{video_id}: {errnote}: {err}')
 
+    # 解析XML内容
+    # 参数说明:
+    # - xml_string: XML字符串
+    # - video_id: 视频ID
+    # - transform_source: 转换源数据的函数
+    # - fatal: 是否致命错误
+    # - errnote: 错误提示信息
     def _parse_xml(self, xml_string, video_id, transform_source=None, fatal=True, errnote=None):
         if transform_source:
             xml_string = transform_source(xml_string)
@@ -1091,6 +1224,13 @@ class InfoExtractor:
         except xml.etree.ElementTree.ParseError as ve:
             self.__print_error('Failed to parse XML' if errnote is None else errnote, fatal, video_id, ve)
 
+    # 解析JSON内容
+    # 参数说明:
+    # - json_string: JSON字符串
+    # - video_id: 视频ID
+    # - transform_source: 转换源数据的函数
+    # - fatal: 是否致命错误
+    # - errnote: 错误提示信息
     def _parse_json(self, json_string, video_id, transform_source=None, fatal=True, errnote=None, **parser_kwargs):
         try:
             return json.loads(
@@ -1098,9 +1238,19 @@ class InfoExtractor:
         except ValueError as ve:
             self.__print_error('Failed to parse JSON' if errnote is None else errnote, fatal, video_id, ve)
 
+    # 解析Socket响应中的JSON内容
+    # 参数说明:
+    # - data: Socket响应数据
     def _parse_socket_response_as_json(self, data, *args, **kwargs):
         return self._parse_json(data[data.find('{'):data.rfind('}') + 1], *args, **kwargs)
 
+    # 创建下载方法
+    # 参数说明:
+    # - name: 方法名称
+    # - parser: 解析器
+    # - note: 提示信息
+    # - errnote: 错误提示信息
+    # - return_value: 返回值类型
     def __create_download_methods(name, parser, note, errnote, return_value):
 
         def parse(ie, content, *args, errnote=errnote, **kwargs):
@@ -1179,6 +1329,15 @@ class InfoExtractor:
         'socket_json', '_parse_socket_response_as_json', 'Polling socket', 'Unable to poll socket', 'JSON object as a dict')
     __download_webpage = __create_download_methods('webpage', None, None, None, 'data of the page as a string')[1]
 
+    # 下载网页内容并返回字符串
+    # 参数说明:
+    # - url_or_request: URL或请求对象
+    # - video_id: 视频ID
+    # - note: 提示信息
+    # - errnote: 错误提示信息
+    # - fatal: 是否致命错误
+    # - tries: 重试次数
+    # - timeout: 重试间隔时间
     def _download_webpage(
             self, url_or_request, video_id, note=None, errnote=None,
             fatal=True, tries=1, timeout=NO_DEFAULT, *args, **kwargs):
@@ -1211,6 +1370,11 @@ class InfoExtractor:
                     raise e
                 self._sleep(timeout, video_id)
 
+    # 报告警告信息
+    # 参数说明:
+    # - msg: 警告消息
+    # - video_id: 视频ID
+    # - only_once: 是否只显示一次
     def report_warning(self, msg, video_id=None, *args, only_once=False, **kwargs):
         idstr = format_field(video_id, None, '%s: ')
         msg = f'[{self.IE_NAME}] {idstr}{msg}'
@@ -1220,39 +1384,66 @@ class InfoExtractor:
             self._printed_messages.add(f'WARNING: {msg}')
         self._downloader.report_warning(msg, *args, **kwargs)
 
+    # 在屏幕上显示消息,消息前缀为[ie_name]
+    # 参数说明:
+    # - msg: 要显示的消息
     def to_screen(self, msg, *args, **kwargs):
         """Print msg to screen, prefixing it with '[ie_name]'"""
         self._downloader.to_screen(f'[{self.IE_NAME}] {msg}', *args, **kwargs)
 
+    # 写入调试信息
+    # 参数说明:
+    # - msg: 调试消息
     def write_debug(self, msg, *args, **kwargs):
         self._downloader.write_debug(f'[{self.IE_NAME}] {msg}', *args, **kwargs)
 
+    # 获取参数值
+    # 参数说明:
+    # - name: 参数名
+    # - default: 默认值
     def get_param(self, name, default=None, *args, **kwargs):
         if self._downloader:
             return self._downloader.params.get(name, default, *args, **kwargs)
         return default
 
+    # 报告DRM保护
+    # 参数说明:
+    # - video_id: 视频ID
+    # - partial: 是否部分DRM保护(已弃用)
     def report_drm(self, video_id, partial=NO_DEFAULT):
         if partial is not NO_DEFAULT:
             self._downloader.deprecation_warning('InfoExtractor.report_drm no longer accepts the argument partial')
         self.raise_no_formats('This video is DRM protected', expected=True, video_id=video_id)
 
+    # 报告开始提取信息
+    # 参数说明:
+    # - id_or_name: 视频ID或名称
     def report_extraction(self, id_or_name):
         """Report information extraction."""
         self.to_screen(f'{id_or_name}: Extracting information')
 
+    # 报告开始下载网页
+    # 参数说明:
+    # - video_id: 视频ID
     def report_download_webpage(self, video_id):
         """Report webpage download."""
         self.to_screen(f'{video_id}: Downloading webpage')
 
+    # 报告开始年龄确认
     def report_age_confirmation(self):
         """Report attempt to confirm age."""
         self.to_screen('Confirming age')
 
+    # 报告开始登录
     def report_login(self):
         """Report attempt to log in."""
         self.to_screen('Logging in')
 
+    # 抛出需要登录的错误
+    # 参数说明:
+    # - msg: 错误消息
+    # - metadata_available: 是否有元数据可用
+    # - method: 登录方法
     def raise_login_required(
             self, msg='This video is only available for registered users',
             metadata_available=False, method=NO_DEFAULT):
@@ -1263,6 +1454,11 @@ class InfoExtractor:
         msg += format_field(self._login_hint(method), None, '. %s')
         raise ExtractorError(msg, expected=True)
 
+    # 抛出地理限制错误
+    # 参数说明:
+    # - msg: 错误消息
+    # - countries: 可访问的国家列表
+    # - metadata_available: 是否有元数据可用
     def raise_geo_restricted(
             self, msg='This video is not available from your location due to geo restriction',
             countries=None, metadata_available=False):
@@ -1272,6 +1468,11 @@ class InfoExtractor:
         else:
             raise GeoRestrictedError(msg, countries=countries)
 
+    # 抛出无可用格式错误
+    # 参数说明:
+    # - msg: 错误消息
+    # - expected: 是否预期的错误
+    # - video_id: 视频ID
     def raise_no_formats(self, msg, expected=False, video_id=None):
         if expected and (
                 self.get_param('ignore_no_formats_error') or self.get_param('wait_for_video')):
@@ -1282,6 +1483,13 @@ class InfoExtractor:
             raise ExtractorError(msg, expected=expected, video_id=video_id)
 
     # Methods for following #608
+    # 返回一个指向应处理页面的URL
+    # 参数说明:
+    # - url: 目标URL
+    # - ie: 信息提取器
+    # - video_id: 视频ID
+    # - video_title: 视频标题
+    # - url_transparent: 是否为透明URL
     @staticmethod
     def url_result(url, ie=None, video_id=None, video_title=None, *, url_transparent=False, **kwargs):
         """Returns a URL that points to a page that should be processed"""
@@ -1297,6 +1505,14 @@ class InfoExtractor:
             'url': url,
         }
 
+    # 从匹配列表中创建播放列表
+    # 参数说明:
+    # - matches: 匹配列表
+    # - playlist_id: 播放列表ID
+    # - playlist_title: 播放列表标题
+    # - getter: 获取器函数
+    # - ie: 信息提取器
+    # - video_kwargs: 视频参数
     @classmethod
     def playlist_from_matches(cls, matches, playlist_id=None, playlist_title=None,
                               getter=IDENTITY, ie=None, video_kwargs=None, **kwargs):
@@ -1304,6 +1520,13 @@ class InfoExtractor:
             (cls.url_result(m, ie, **(video_kwargs or {})) for m in orderedSet(map(getter, matches), lazy=True)),
             playlist_id, playlist_title, **kwargs)
 
+    # 创建播放列表结果
+    # 参数说明:
+    # - entries: 条目列表
+    # - playlist_id: 播放列表ID
+    # - playlist_title: 播放列表标题
+    # - playlist_description: 播放列表描述
+    # - multi_video: 是否为多视频
     @staticmethod
     def playlist_result(entries, playlist_id=None, playlist_title=None, playlist_description=None, *, multi_video=False, **kwargs):
         """Returns a playlist"""
@@ -1319,6 +1542,15 @@ class InfoExtractor:
             'entries': entries,
         }
 
+    # 在字符串中搜索正则表达式
+    # 参数说明:
+    # - pattern: 正则表达式模式
+    # - string: 要搜索的字符串
+    # - name: 字段名称
+    # - default: 默认值
+    # - fatal: 是否致命错误
+    # - flags: 正则表达式标志
+    # - group: 要返回的组
     def _search_regex(self, pattern, string, name, default=NO_DEFAULT, fatal=True, flags=0, group=None):
         """
         Perform a regex search on the given string, using a single or a list of
@@ -1354,6 +1586,16 @@ class InfoExtractor:
             self.report_warning(f'unable to extract {_name}' + bug_reports_message())
             return None
 
+    # 在字符串中搜索JSON对象
+    # 参数说明:
+    # - start_pattern: 开始模式
+    # - string: 要搜索的字符串
+    # - name: 字段名称
+    # - video_id: 视频ID
+    # - end_pattern: 结束模式
+    # - contains_pattern: 包含模式
+    # - fatal: 是否致命错误
+    # - default: 默认值
     def _search_json(self, start_pattern, string, name, video_id, *, end_pattern='',
                      contains_pattern=r'{(?s:.+)}', fatal=True, default=NO_DEFAULT, **kwargs):
         """Searches string for the JSON object specified by start_pattern"""
@@ -1381,6 +1623,15 @@ class InfoExtractor:
                     f'Unable to extract {_name} - Failed to parse JSON: {e}', video_id=video_id)
         return default
 
+    # 在HTML中搜索正则表达式并清理结果
+    # 参数说明:
+    # - pattern: 正则表达式模式
+    # - string: 要搜索的字符串
+    # - name: 字段名称
+    # - default: 默认值
+    # - fatal: 是否致命错误
+    # - flags: 正则表达式标志
+    # - group: 要返回的组
     def _html_search_regex(self, pattern, string, name, default=NO_DEFAULT, fatal=True, flags=0, group=None):
         """
         Like _search_regex, but strips HTML tags and unescapes entities.
@@ -1390,6 +1641,9 @@ class InfoExtractor:
             return tuple(map(clean_html, res))
         return clean_html(res)
 
+    # 获取netrc登录信息
+    # 参数说明:
+    # - netrc_machine: netrc机器名
     def _get_netrc_login_info(self, netrc_machine=None):
         netrc_machine = netrc_machine or self._NETRC_MACHINE
 
@@ -1424,6 +1678,11 @@ class InfoExtractor:
 
         return info[0], info[2]
 
+    # 获取登录信息
+    # 参数说明:
+    # - username_option: 用户名选项
+    # - password_option: 密码选项
+    # - netrc_machine: netrc机器名
     def _get_login_info(self, username_option='username', password_option='password', netrc_machine=None):
         """
         Get the login info as (username, password)
@@ -1445,6 +1704,9 @@ class InfoExtractor:
                 return None, None
         return username, password
 
+    # 获取两步验证信息
+    # 参数说明:
+    # - note: 提示信息
     def _get_tfa_info(self, note='two-factor verification code'):
         """
         Get the two-factor authentication info
@@ -1459,7 +1721,9 @@ class InfoExtractor:
 
         return getpass.getpass(f'Type {note} and press [Return]: ')
 
-    # Helper functions for extracting OpenGraph info
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - prop: 属性
     @staticmethod
     def _og_regexes(prop):
         content_re = r'content=(?:"([^"]+?)"|\'([^\']+?)\'|\s*([^\s"\'=<>`]+?)(?=\s|/?>))'
@@ -1471,12 +1735,20 @@ class InfoExtractor:
             template % (content_re, property_re),
         ]
 
+    # 提取meta信息
+    # 参数说明:
+    # - prop: 属性
     @staticmethod
     def _meta_regex(prop):
         return rf'''(?isx)<meta
                     (?=[^>]+(?:itemprop|name|property|id|http-equiv)=(["\']?){re.escape(prop)}\1)
                     [^>]+?content=(["\'])(?P<content>.*?)\2'''
 
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - prop: 属性
+    # - html: HTML内容
+    # - name: 名称
     def _og_search_property(self, prop, html, name=None, **kargs):
         prop = variadic(prop)
         if name is None:
@@ -1489,27 +1761,52 @@ class InfoExtractor:
             return None
         return unescapeHTML(escaped)
 
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - html: HTML内容
     def _og_search_thumbnail(self, html, **kargs):
         return self._og_search_property('image', html, 'thumbnail URL', fatal=False, **kargs)
 
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - html: HTML内容
     def _og_search_description(self, html, **kargs):
         return self._og_search_property('description', html, fatal=False, **kargs)
 
     def _og_search_title(self, html, *, fatal=False, **kargs):
         return self._og_search_property('title', html, fatal=fatal, **kargs)
 
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - html: HTML内容
+    # - name: 名称
+    # - secure: 是否安全
     def _og_search_video_url(self, html, name='video url', secure=True, **kargs):
         regexes = self._og_regexes('video') + self._og_regexes('video:url')
         if secure:
             regexes = self._og_regexes('video:secure_url') + regexes
         return self._html_search_regex(regexes, html, name, **kargs)
 
+    # 提取OpenGraph信息
+    # 参数说明:
+    # - html: HTML内容
     def _og_search_url(self, html, **kargs):
         return self._og_search_property('url', html, **kargs)
 
+    # 提取HTML标题
+    # 参数说明:
+    # - html: HTML内容
+    # - name: 名称
+    # - fatal: 是否致命错误
     def _html_extract_title(self, html, name='title', *, fatal=False, **kwargs):
         return self._html_search_regex(r'(?s)<title\b[^>]*>([^<]+)</title>', html, name, fatal=fatal, **kwargs)
 
+    # 提取meta信息
+    # 参数说明:
+    # - name: 名称
+    # - html: HTML内容
+    # - display_name: 显示名称
+    # - fatal: 是否致命错误
     def _html_search_meta(self, name, html, display_name=None, fatal=False, **kwargs):
         name = variadic(name)
         if display_name is None:
@@ -1518,9 +1815,15 @@ class InfoExtractor:
             [self._meta_regex(n) for n in name],
             html, display_name, fatal=fatal, group='content', **kwargs)
 
+    # 提取上传者信息
+    # 参数说明:
+    # - html: HTML内容
     def _dc_search_uploader(self, html):
         return self._html_search_meta('dc.creator', html, 'uploader')
 
+    # 提取RTA信息
+    # 参数说明:
+    # - html: HTML内容
     @staticmethod
     def _rta_search(html):
         # See http://www.rtalabel.org/index.php?content=howtofaq#single
@@ -1543,6 +1846,9 @@ class InfoExtractor:
                 age_limit = max(age_limit, int(traverse_obj(mobj, 1, default=18)))
         return age_limit
 
+    # 提取媒体评分信息
+    # 参数说明:
+    # - html: HTML内容
     def _media_rating_search(self, html):
         # See http://www.tjg-designs.com/WP/metadata-code-examples-adding-metadata-to-your-web-pages/
         rating = self._html_search_meta('rating', html)
@@ -1559,6 +1865,9 @@ class InfoExtractor:
         }
         return RATING_TABLE.get(rating.lower())
 
+    # 提取家庭友好信息
+    # 参数说明:
+    # - html: HTML内容
     def _family_friendly_search(self, html):
         # See http://schema.org/VideoObject
         family_friendly = self._html_search_meta(
@@ -1575,10 +1884,19 @@ class InfoExtractor:
         }
         return RATING_TABLE.get(family_friendly.lower())
 
+    # 提取Twitter播放器信息
+    # 参数说明:
+    # - html: HTML内容
     def _twitter_search_player(self, html):
         return self._html_search_meta('twitter:player', html,
                                       'twitter card player')
 
+    # 提取json-ld信息
+    # 参数说明:
+    # - html: HTML内容
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - default: 默认值
     def _yield_json_ld(self, html, video_id, *, fatal=True, default=NO_DEFAULT):
         """Yield all json ld objects in the html"""
         if default is not NO_DEFAULT:
@@ -1591,6 +1909,13 @@ class InfoExtractor:
                 if isinstance(json_ld, dict):
                     yield json_ld
 
+    # 提取json-ld信息
+    # 参数说明:
+    # - html: HTML内容
+    # - video_id: 视频ID
+    # - expected_type: 预期类型
+    # - fatal: 是否致命错误
+    # - default: 默认值
     def _search_json_ld(self, html, video_id, expected_type=None, *, fatal=True, default=NO_DEFAULT):
         """Search for a video in any json ld in the html"""
         if default is not NO_DEFAULT:
@@ -1608,6 +1933,12 @@ class InfoExtractor:
             self.report_warning(f'unable to extract JSON-LD {bug_reports_message()}')
             return {}
 
+    # 提取json-ld信息
+    # 参数说明:
+    # - json_ld: json-ld内容
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - expected_type: 预期类型
     def _json_ld(self, json_ld, video_id, fatal=True, expected_type=None):
         if isinstance(json_ld, str):
             json_ld = self._parse_json(json_ld, video_id, fatal=fatal)
@@ -1778,6 +2109,12 @@ class InfoExtractor:
         traverse_json_ld(json_ld)
         return filter_dict(info)
 
+    # 搜索next.js数据
+    # 参数说明:
+    # - webpage: 网页内容
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - default: 默认值
     def _search_nextjs_data(self, webpage, video_id, *, fatal=True, default=NO_DEFAULT, **kw):
         if default == '{}':
             self._downloader.deprecation_warning('using `default=\'{}\'` is deprecated, use `default={}` instead')
@@ -1789,6 +2126,13 @@ class InfoExtractor:
             r'<script[^>]+id=[\'"]__NEXT_DATA__[\'"][^>]*>', webpage, 'next.js data',
             video_id, end_pattern='</script>', fatal=fatal, default=default, **kw)
 
+    # 搜索nuxt.js数据
+    # 参数说明:
+    # - webpage: 网页内容
+    # - video_id: 视频ID
+    # - context_name: 上下文名称
+    # - fatal: 是否致命错误
+    # - traverse: 遍历
     def _search_nuxt_data(self, webpage, video_id, context_name='__NUXT__', *, fatal=True, traverse=('data', 0)):
         """Parses Nuxt.js metadata. This works as long as the function __NUXT__ invokes is a pure function"""
         rectx = re.escape(context_name)
@@ -1806,6 +2150,9 @@ class InfoExtractor:
         ret = self._parse_json(js, video_id, transform_source=functools.partial(js_to_json, vars=args), fatal=fatal)
         return traverse_obj(ret, traverse) or {}
 
+    # 提取隐藏输入信息
+    # 参数说明:
+    # - html: HTML内容
     @staticmethod
     def _hidden_inputs(html):
         html = re.sub(r'<!--(?:(?!<!--).)*-->', '', html)
@@ -1822,12 +2169,17 @@ class InfoExtractor:
                 hidden_inputs[name] = value
         return hidden_inputs
 
+    # 提取表单隐藏输入信息
+    # 参数说明:
+    # - form_id: 表单ID
+    # - html: HTML内容
     def _form_hidden_inputs(self, form_id, html):
         form = self._search_regex(
             rf'(?is)<form[^>]+?id=(["\']){form_id}\1[^>]*>(?P<form>.+?)</form>',
             html, f'{form_id} form', group='form')
         return self._hidden_inputs(form)
 
+    # 格式排序
     @classproperty(cache=True)
     def FormatSort(cls):
         class FormatSort(FormatSorter):
@@ -1839,6 +2191,10 @@ class InfoExtractor:
             'Use yt_dlp.utils.FormatSorter instead')
         return FormatSort
 
+    # 格式排序
+    # 参数说明:
+    # - formats: 格式列表
+    # - field_preference: 字段偏好
     def _sort_formats(self, formats, field_preference=[]):
         if not field_preference:
             self._downloader.deprecation_warning(
@@ -1850,6 +2206,10 @@ class InfoExtractor:
         if formats:
             formats[0]['__sort_fields'] = field_preference
 
+    # 检查格式
+    # 参数说明:
+    # - formats: 格式列表
+    # - video_id: 视频ID
     def _check_formats(self, formats, video_id):
         if formats:
             formats[:] = filter(
@@ -1858,6 +2218,9 @@ class InfoExtractor:
                     item='{} video format'.format(f.get('format_id')) if f.get('format_id') else 'video'),
                 formats)
 
+    # 移除重复格式
+    # 参数说明:
+    # - formats: 格式列表
     @staticmethod
     def _remove_duplicate_formats(formats):
         seen_urls = set()
@@ -1882,6 +2245,12 @@ class InfoExtractor:
 
         formats[:] = unique_formats
 
+    # 检查URL是否有效
+    # 参数说明:
+    # - url: URL
+    # - video_id: 视频ID
+    # - item: 项目
+    # - headers: 请求头
     def _is_valid_url(self, url, video_id, item='video', headers={}):
         url = self._proto_relative_url(url, scheme='http:')
         # For now assume non HTTP(S) URLs always valid
@@ -1895,6 +2264,7 @@ class InfoExtractor:
                 f'{video_id}: {item} URL is invalid, skipping: {e.cause!s}')
             return False
 
+    # 获取HTTP方案
     def http_scheme(self):
         """ Either "http:" or "https:", depending on the user's preferences """
         return (
@@ -1902,11 +2272,20 @@ class InfoExtractor:
             if self.get_param('prefer_insecure', False)
             else 'https:')
 
+    # 获取协议相对URL
+    # 参数说明:
+    # - url: URL
+    # - scheme: 协议
     def _proto_relative_url(self, url, scheme=None):
         scheme = scheme or self.http_scheme()
         assert scheme.endswith(':')
         return sanitize_url(url, scheme=scheme[:-1])
 
+    # 睡眠
+    # 参数说明:
+    # - timeout: 超时时间
+    # - video_id: 视频ID
+    # - msg_template: 消息模板
     def _sleep(self, timeout, video_id, msg_template=None):
         if msg_template is None:
             msg_template = '%(video_id)s: Waiting for %(timeout)s seconds'
@@ -1914,6 +2293,12 @@ class InfoExtractor:
         self.to_screen(msg)
         time.sleep(timeout)
 
+    # 提取f4m格式
+    # 参数说明:
+    # - manifest_url: 清单URL
+    # - video_id: 视频ID
+    # - preference: 偏好
+    # - quality: 质量
     def _extract_f4m_formats(self, manifest_url, video_id, preference=None, quality=None, f4m_id=None,
                              transform_source=lambda s: fix_xml_ampersands(s).strip(),
                              fatal=True, m3u8_id=None, data=None, headers={}, query={}):
@@ -1937,6 +2322,12 @@ class InfoExtractor:
             manifest, manifest_url, video_id, preference=preference, quality=quality, f4m_id=f4m_id,
             transform_source=transform_source, fatal=fatal, m3u8_id=m3u8_id)
 
+    # 解析f4m格式
+    # 参数说明:
+    # - manifest: 清单
+    # - manifest_url: 清单URL
+    # - video_id: 视频ID
+    # - preference: 偏好
     def _parse_f4m_formats(self, manifest, manifest_url, video_id, preference=None, quality=None, f4m_id=None,
                            transform_source=lambda s: fix_xml_ampersands(s).strip(),
                            fatal=True, m3u8_id=None):
@@ -2039,6 +2430,12 @@ class InfoExtractor:
             })
         return formats
 
+    # 提取m3u8格式
+    # 参数说明:
+    # - m3u8_url: m3u8 URL
+    # - ext: 扩展名
+    # - preference: 偏好
+    # - quality: 质量
     def _m3u8_meta_format(self, m3u8_url, ext=None, preference=None, quality=None, m3u8_id=None):
         return {
             'format_id': join_nonempty(m3u8_id, 'meta'),
@@ -2051,18 +2448,33 @@ class InfoExtractor:
             'format_note': 'Quality selection URL',
         }
 
+    # 报告忽略字幕
+    # 参数说明:
+    # - name: 名称
     def _report_ignoring_subs(self, name):
         self.report_warning(bug_reports_message(
             f'Ignoring subtitle tracks found in the {name} manifest; '
             'if any subtitle tracks are missing,',
         ), only_once=True)
 
+    # 提取m3u8格式
+    # 参数说明:
+    # - m3u8_url: m3u8 URL
+    # - video_id: 视频ID
+    # - ext: 扩展名
+    # - entry_protocol: 入口协议
     def _extract_m3u8_formats(self, *args, **kwargs):
         fmts, subs = self._extract_m3u8_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('HLS')
         return fmts
 
+    # 提取m3u8格式
+    # 参数说明:
+    # - m3u8_url: m3u8 URL
+    # - video_id: 视频ID
+    # - ext: 扩展名
+    # - entry_protocol: 入口协议
     def _extract_m3u8_formats_and_subtitles(
             self, m3u8_url, video_id, ext=None, entry_protocol='m3u8_native',
             preference=None, quality=None, m3u8_id=None, note=None,
@@ -2098,6 +2510,12 @@ class InfoExtractor:
             note=note, errnote=errnote, fatal=fatal, live=live, data=data,
             headers=headers, query=query, video_id=video_id)
 
+    # 解析m3u8格式
+    # 参数说明:
+    # - m3u8_doc: m3u8文档
+    # - m3u8_url: m3u8 URL
+    # - ext: 扩展名
+    # - entry_protocol: 入口协议
     def _parse_m3u8_formats_and_subtitles(
             self, m3u8_doc, m3u8_url=None, ext=None, entry_protocol='m3u8_native',
             preference=None, quality=None, m3u8_id=None, live=False, note=None,
@@ -2322,6 +2740,12 @@ class InfoExtractor:
                 last_stream_inf = {}
         return formats, subtitles
 
+    # 提取m3u8 VOD时长
+    # 参数说明:
+    # - m3u8_vod_url: m3u8 VOD URL
+    # - video_id: 视频ID
+    # - note: 提示信息
+    # - errnote: 错误提示信息
     def _extract_m3u8_vod_duration(
             self, m3u8_vod_url, video_id, note=None, errnote=None, data=None, headers={}, query={}):
 
@@ -2333,6 +2757,10 @@ class InfoExtractor:
 
         return self._parse_m3u8_vod_duration(m3u8_vod or '', video_id)
 
+    # 解析m3u8 VOD时长
+    # 参数说明:
+    # - m3u8_vod: m3u8 VOD内容
+    # - video_id: 视频ID
     def _parse_m3u8_vod_duration(self, m3u8_vod, video_id):
         if '#EXT-X-ENDLIST' not in m3u8_vod:
             return None
@@ -2341,6 +2769,12 @@ class InfoExtractor:
             float(line[len('#EXTINF:'):].split(',')[0])
             for line in m3u8_vod.splitlines() if line.startswith('#EXTINF:'))) or None
 
+    # 提取MPD VOD时长
+    # 参数说明:
+    # - mpd_url: MPD VOD URL
+    # - video_id: 视频ID
+    # - note: 提示信息
+    # - errnote: 错误提示信息
     def _extract_mpd_vod_duration(
             self, mpd_url, video_id, note=None, errnote=None, data=None, headers={}, query={}):
 
@@ -2353,6 +2787,12 @@ class InfoExtractor:
             return None
         return int_or_none(parse_duration(mpd_doc.get('mediaPresentationDuration')))
 
+    # 提取SMIL格式
+    # 参数说明:
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - f4m_params: 参数
     @staticmethod
     def _xpath_ns(path, namespace=None):
         if not namespace:
@@ -2365,6 +2805,12 @@ class InfoExtractor:
                 out.append(f'{{{namespace}}}{c}')
         return '/'.join(out)
 
+    # 提取SMIL格式
+    # 参数说明:
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - f4m_params: 参数
     def _extract_smil_formats_and_subtitles(self, smil_url, video_id, fatal=True, f4m_params=None, transform_source=None):
         if self.get_param('ignore_no_formats_error'):
             fatal = False
@@ -2378,12 +2824,24 @@ class InfoExtractor:
         return self._parse_smil_formats_and_subtitles(smil, urlh.url, video_id, f4m_params=f4m_params,
                                                       namespace=self._parse_smil_namespace(smil))
 
+    # 提取SMIL格式
+    # 参数说明:
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - f4m_params: 参数
     def _extract_smil_formats(self, *args, **kwargs):
         fmts, subs = self._extract_smil_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('SMIL')
         return fmts
 
+    # 提取SMIL信息
+    # 参数说明:
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - f4m_params: 参数
     def _extract_smil_info(self, smil_url, video_id, fatal=True, f4m_params=None):
         res = self._download_smil(smil_url, video_id, fatal=fatal)
         if res is False:
@@ -2394,11 +2852,23 @@ class InfoExtractor:
 
         return self._parse_smil(smil, smil_url, video_id, f4m_params=f4m_params)
 
+    # 下载SMIL文件
+    # 参数说明:
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - fatal: 是否致命错误
+    # - transform_source: 转换源    
     def _download_smil(self, smil_url, video_id, fatal=True, transform_source=None):
         return self._download_xml_handle(
             smil_url, video_id, 'Downloading SMIL file',
             'Unable to download SMIL file', fatal=fatal, transform_source=transform_source)
 
+    # 解析SMIL文件
+    # 参数说明:
+    # - smil: SMIL文件
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - f4m_params: 参数
     def _parse_smil(self, smil, smil_url, video_id, f4m_params=None):
         namespace = self._parse_smil_namespace(smil)
 
@@ -2438,16 +2908,31 @@ class InfoExtractor:
             'subtitles': subtitles,
         }
 
+    # 解析SMIL命名空间
+    # 参数说明:
+    # - smil: SMIL文件
     def _parse_smil_namespace(self, smil):
         return self._search_regex(
             r'(?i)^{([^}]+)?}smil$', smil.tag, 'namespace', default=None)
 
+    # 解析SMIL格式
+    # 参数说明:
+    # - smil: SMIL文件
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - namespace: 命名空间
     def _parse_smil_formats(self, *args, **kwargs):
         fmts, subs = self._parse_smil_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('SMIL')
         return fmts
 
+    # 解析SMIL格式
+    # 参数说明:
+    # - smil: SMIL文件
+    # - smil_url: SMIL URL
+    # - video_id: 视频ID
+    # - namespace: 命名空间
     def _parse_smil_formats_and_subtitles(
             self, smil, smil_url, video_id, namespace=None, f4m_params=None, transform_rtmp_url=None):
         base = smil_url
@@ -2574,6 +3059,11 @@ class InfoExtractor:
 
         return formats, subtitles
 
+    # 解析SMIL字幕
+    # 参数说明:
+    # - smil: SMIL文件
+    # - namespace: 命名空间
+    # - subtitles_lang: 字幕语言
     def _parse_smil_subtitles(self, smil, namespace=None, subtitles_lang='en'):
         urls = []
         subtitles = {}
@@ -2590,6 +3080,11 @@ class InfoExtractor:
             })
         return subtitles
 
+    # 提取xspf播放列表
+    # 参数说明:
+    # - xspf_url: xspf URL
+    # - playlist_id: 播放列表ID
+    # - fatal: 是否致命错误
     def _extract_xspf_playlist(self, xspf_url, playlist_id, fatal=True):
         res = self._download_xml_handle(
             xspf_url, playlist_id, 'Downloading xpsf playlist',
@@ -2604,6 +3099,12 @@ class InfoExtractor:
             xspf, playlist_id, xspf_url=xspf_url,
             xspf_base_url=base_url(xspf_url))
 
+    # 解析xspf播放列表
+    # 参数说明:
+    # - xspf_doc: xspf文档
+    # - playlist_id: 播放列表ID
+    # - xspf_url: xspf URL
+    # - xspf_base_url: xspf基础URL
     def _parse_xspf(self, xspf_doc, playlist_id, xspf_url=None, xspf_base_url=None):
         NS_MAP = {
             'xspf': 'http://xspf.org/ns/0/',
@@ -2644,16 +3145,30 @@ class InfoExtractor:
             })
         return entries
 
+    # 提取MPD格式
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _extract_mpd_formats(self, *args, **kwargs):
         fmts, subs = self._extract_mpd_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('DASH')
         return fmts
 
+    # 提取MPD格式和字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _extract_mpd_formats_and_subtitles(self, *args, **kwargs):
         periods = self._extract_mpd_periods(*args, **kwargs)
         return self._merge_mpd_periods(periods)
 
+    # 提取MPD周期
+    # 参数说明:
+    # - mpd_url: MPD URL
+    # - video_id: 视频ID
+    # - mpd_id: MPD ID
+    # - note: 提示信息
     def _extract_mpd_periods(
             self, mpd_url, video_id, mpd_id=None, note=None, errnote=None,
             fatal=True, data=None, headers={}, query={}):
@@ -2678,16 +3193,27 @@ class InfoExtractor:
 
         return self._parse_mpd_periods(mpd_doc, mpd_id, mpd_base_url, mpd_url)
 
+    # 解析MPD格式
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _parse_mpd_formats(self, *args, **kwargs):
         fmts, subs = self._parse_mpd_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('DASH')
         return fmts
 
+    # 解析MPD格式和字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _parse_mpd_formats_and_subtitles(self, *args, **kwargs):
         periods = self._parse_mpd_periods(*args, **kwargs)
         return self._merge_mpd_periods(periods)
 
+    # 合并MPD周期
+    # 参数说明:
+    # - periods: MPD周期
     def _merge_mpd_periods(self, periods):
         """
         Combine all formats and subtitles from an MPD manifest into a single list,
@@ -2716,6 +3242,12 @@ class InfoExtractor:
 
         return list(formats.values()), subtitles
 
+    # 解析MPD周期
+    # 参数说明:
+    # - mpd_doc: MPD文档
+    # - mpd_id: MPD ID
+    # - mpd_base_url: MPD基础URL
+    # - mpd_url: MPD URL
     def _parse_mpd_periods(self, mpd_doc, mpd_id=None, mpd_base_url='', mpd_url=None):
         """
         Parse formats from MPD manifest.
@@ -2961,9 +3493,7 @@ class InfoExtractor:
                                 representation_ms_info['start_number'],
                                 representation_ms_info['total_number'] + representation_ms_info['start_number'])]
                         else:
-                            # $Number*$ or $Time$ in media template with S list available
-                            # Example $Number*$: http://www.svtplay.se/klipp/9023742/stopptid-om-bjorn-borg
-                            # Example $Time$: https://play.arkena.com/embed/avp/v2/player/media/b41dda37-d8e7-4d3f-b1b5-9a9db578bdfe/1/129411
+                            # $Number*$ or $Time$: https://play.arkena.com/embed/avp/v2/player/media/b41dda37-d8e7-4d3f-b1b5-9a9db578bdfe/1/129411
                             representation_ms_info['fragments'] = []
                             segment_time = 0
                             segment_d = None
@@ -3056,12 +3586,22 @@ class InfoExtractor:
                         period_entry['subtitles'][lang or 'und'].append(f)
             yield period_entry
 
+    # 提取ISM格式
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _extract_ism_formats(self, *args, **kwargs):
         fmts, subs = self._extract_ism_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('ISM')
         return fmts
 
+    # 提取ISM格式和字幕
+    # 参数说明:
+    # - ism_url: ISM URL
+    # - video_id: 视频ID
+    # - ism_id: ISM ID
+    # - note: 提示信息
     def _extract_ism_formats_and_subtitles(self, ism_url, video_id, ism_id=None, note=None, errnote=None, fatal=True, data=None, headers={}, query={}):
         if self.get_param('ignore_no_formats_error'):
             fatal = False
@@ -3079,6 +3619,11 @@ class InfoExtractor:
 
         return self._parse_ism_formats_and_subtitles(ism_doc, urlh.url, ism_id)
 
+    # 解析ISM格式和字幕
+    # 参数说明:
+    # - ism_doc: ISM文档
+    # - ism_url: ISM URL
+    # - ism_id: ISM ID
     def _parse_ism_formats_and_subtitles(self, ism_doc, ism_url, ism_id=None):
         """
         Parse formats from ISM manifest.
@@ -3196,6 +3741,12 @@ class InfoExtractor:
                     })
         return formats, subtitles
 
+    # 解析HTML5媒体条目
+    # 参数说明:
+    # - base_url: 基础URL
+    # - webpage: 网页内容
+    # - video_id: 视频ID
+    # - m3u8_id: m3u8 ID
     def _parse_html5_media_entries(self, base_url, webpage, video_id, m3u8_id=None, m3u8_entry_protocol='m3u8_native', mpd_id=None, preference=None, quality=None, _headers=None):
         def absolute_url(item_url):
             return urljoin(base_url, item_url)
@@ -3324,12 +3875,21 @@ class InfoExtractor:
                 entries.append(media_info)
         return entries
 
+    # 提取Akamai格式
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _extract_akamai_formats(self, *args, **kwargs):
         fmts, subs = self._extract_akamai_formats_and_subtitles(*args, **kwargs)
         if subs:
             self._report_ignoring_subs('akamai')
         return fmts
 
+    # 提取Akamai格式和字幕
+    # 参数说明:
+    # - manifest_url: 清单URL
+    # - video_id: 视频ID
+    # - hosts: 主机
     def _extract_akamai_formats_and_subtitles(self, manifest_url, video_id, hosts={}):
         signed = 'hdnea=' in manifest_url
         if not signed:
@@ -3388,11 +3948,17 @@ class InfoExtractor:
 
         return formats, subtitles
 
+    # 提取Wowza格式
+    # 参数说明:
+    # - url: URL
+    # - video_id: 视频ID
+    # - m3u8_entry_protocol: m3u8入口协议
+    # - skip_protocols: 跳过协议
     def _extract_wowza_formats(self, url, video_id, m3u8_entry_protocol='m3u8_native', skip_protocols=[]):
         query = urllib.parse.urlparse(url).query
         url = re.sub(r'/(?:manifest|playlist|jwplayer)\.(?:m3u8|f4m|mpd|smil)', '', url)
         mobj = re.search(
-            r'(?:(?:http|rtmp|rtsp)(?P<s>s)?:)?(?P<url>//[^?]+)', url)
+            r'(?:(?:http|rtmp|rtsp)(?P s)?:)?(?P<url>//[^?]+)', url)
         url_base = mobj.group('url')
         http_base_url = '{}{}:{}'.format('http', mobj.group('s') or '', url_base)
         formats = []
@@ -3441,6 +4007,11 @@ class InfoExtractor:
                     })
         return formats
 
+    # 查找JWPlayer数据
+    # 参数说明:
+    # - webpage: 网页内容
+    # - video_id: 视频ID
+    # - transform_source: 转换源
     def _find_jwplayer_data(self, webpage, video_id=None, transform_source=js_to_json):
         return self._search_json(
             r'''(?<!-)\bjwplayer\s*\(\s*(?P<q>'|")(?!(?P=q)).+(?P=q)\s*\)(?:(?!</script>).)*?\.\s*(?:setup\s*\(|(?P<load>load)\s*\(\s*\[)''',
@@ -3449,12 +4020,24 @@ class InfoExtractor:
             contains_pattern=r'\{(?s:.*)}(?(load)(?:\s*,\s*\{(?s:.*)})*)', end_pattern=r'(?(load)\]|\))',
             transform_source=transform_source, default=None)
 
+    # 提取JWPlayer数据
+    # 参数说明:
+    # - webpage: 网页内容
+    # - video_id: 视频ID
+    # - *args: 参数
+    # - transform_source: 转换源
     def _extract_jwplayer_data(self, webpage, video_id, *args, transform_source=js_to_json, **kwargs):
         jwplayer_data = self._find_jwplayer_data(
             webpage, video_id, transform_source=transform_source)
         return self._parse_jwplayer_data(
             jwplayer_data, video_id, *args, **kwargs)
 
+    # 解析JWPlayer数据
+    # 参数说明:
+    # - jwplayer_data: JWPlayer数据
+    # - video_id: 视频ID
+    # - require_title: 是否需要标题
+    # - m3u8_id: m3u8 ID
     def _parse_jwplayer_data(self, jwplayer_data, video_id=None, require_title=True,
                              m3u8_id=None, mpd_id=None, rtmp_params=None, base_url=None):
         entries = []
@@ -3522,6 +4105,13 @@ class InfoExtractor:
         else:
             return self.playlist_result(entries)
 
+    # 解析JWPlayer格式
+    # 参数说明:
+    # - jwplayer_sources_data: JWPlayer源数据
+    # - video_id: 视频ID
+    # - m3u8_id: m3u8 ID
+    # - mpd_id: MPD ID
+    # - rtmp_params: RTMP参数
     def _parse_jwplayer_formats(self, jwplayer_sources_data, video_id=None,
                                 m3u8_id=None, mpd_id=None, rtmp_params=None, base_url=None):
         urls = set()
@@ -3587,10 +4177,18 @@ class InfoExtractor:
                 formats.append(a_format)
         return formats
 
+    # 提取直播标题
+    # 参数说明:
+    # - name: 名称
     def _live_title(self, name):
         self._downloader.deprecation_warning('yt_dlp.InfoExtractor._live_title is deprecated and does not work as expected')
         return name
 
+    # 提取整数
+    # 参数说明:
+    # - v: 值
+    # - name: 名称
+    # - fatal: 是否致命错误
     def _int(self, v, name, fatal=False, **kwargs):
         res = int_or_none(v, **kwargs)
         if res is None:
@@ -3601,6 +4199,11 @@ class InfoExtractor:
                 self.report_warning(msg)
         return res
 
+    # 提取浮点数
+    # 参数说明:
+    # - v: 值
+    # - name: 名称
+    # - fatal: 是否致命错误
     def _float(self, v, name, fatal=False, **kwargs):
         res = float_or_none(v, **kwargs)
         if res is None:
@@ -3611,6 +4214,12 @@ class InfoExtractor:
                 self.report_warning(msg)
         return res
 
+    # 设置Cookie
+    # 参数说明:
+    # - domain: 域名
+    # - name: 名称
+    # - value: 值
+    # - expire_time: 过期时间
     def _set_cookie(self, domain, name, value, expire_time=None, port=None,
                     path='/', secure=False, discard=False, rest={}, **kwargs):
         cookie = http.cookiejar.Cookie(
@@ -3619,10 +4228,17 @@ class InfoExtractor:
             discard, None, None, rest)
         self.cookiejar.set_cookie(cookie)
 
+    # 获取Cookie
+    # 参数说明:
+    # - url: URL
     def _get_cookies(self, url):
         """ Return a http.cookies.SimpleCookie with the cookies for the url """
         return LenientSimpleCookie(self._downloader.cookiejar.get_cookie_header(url))
 
+    # 应用第一个Set-Cookie头
+    # 参数说明:
+    # - url_handle: URL处理
+    # - cookie: Cookie
     def _apply_first_set_cookie_header(self, url_handle, cookie):
         """
         Apply first Set-Cookie header instead of the last. Experimental.
@@ -3648,6 +4264,9 @@ class InfoExtractor:
                 self._set_cookie(domain, cookie, value)
                 break
 
+    # 获取测试用例
+    # 参数说明:
+    # - include_onlymatching: 是否只匹配
     @classmethod
     def get_testcases(cls, include_onlymatching=False):
         # Do not look in super classes
@@ -3665,6 +4284,9 @@ class InfoExtractor:
         if getattr(cls, '__wrapped__', None):
             yield from cls.__wrapped__.get_testcases(include_onlymatching)
 
+    # 获取网页测试用例
+    # 参数说明:
+    # - include_onlymatching: 是否只匹配
     @classmethod
     def get_webpage_testcases(cls):
         tests = vars(cls).get('_WEBPAGE_TESTS', [])
@@ -3674,6 +4296,9 @@ class InfoExtractor:
         if getattr(cls, '__wrapped__', None):
             yield from cls.__wrapped__.get_webpage_testcases()
 
+    # 获取年龄限制
+    # 参数说明:
+    # - cls: 类
     @classproperty(cache=True)
     def age_limit(cls):
         """Get age limit from the testcases"""
@@ -3681,6 +4306,9 @@ class InfoExtractor:
             (*cls.get_testcases(include_onlymatching=False), *cls.get_webpage_testcases()),
             (..., (('playlist', 0), None), 'info_dict', 'age_limit')) or [0])
 
+    # 获取返回类型
+    # 参数说明:
+    # - cls: 类
     @classproperty(cache=True)
     def _RETURN_TYPE(cls):
         """What the extractor returns: "video", "playlist", "any", or None (Unknown)"""
@@ -3693,17 +4321,27 @@ class InfoExtractor:
             return 'playlist'
         return 'any'
 
+    # 判断是否为单个视频
+    # 参数说明:
+    # - url: URL
     @classmethod
     def is_single_video(cls, url):
         """Returns whether the URL is of a single video, None if unknown"""
         if cls.suitable(url):
             return {'video': True, 'playlist': False}.get(cls._RETURN_TYPE)
 
+    # 判断是否适合
+    # 参数说明:
+    # - age_limit: 年龄限制
     @classmethod
     def is_suitable(cls, age_limit):
         """Test whether the extractor is generally suitable for the given age limit"""
         return not age_restricted(cls.age_limit, age_limit)
 
+    # 获取描述
+    # 参数说明:
+    # - markdown: 是否为Markdown格式
+    # - search_examples: 搜索示例
     @classmethod
     def description(cls, *, markdown=True, search_examples=None):
         """Description of the extractor"""
@@ -3729,18 +4367,30 @@ class InfoExtractor:
         name = (' - **{}**'.format(re.sub(r':(\w+:)', ':\u200B\\g<1>', cls.IE_NAME))) if markdown else cls.IE_NAME
         return f'{name}:{desc}' if desc else name
 
+    # 提取字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def extract_subtitles(self, *args, **kwargs):
         if (self.get_param('writesubtitles', False)
                 or self.get_param('listsubtitles')):
             return self._get_subtitles(*args, **kwargs)
         return {}
 
+    # 获取字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _get_subtitles(self, *args, **kwargs):
         raise NotImplementedError('This method must be implemented by subclasses')
 
     class CommentsDisabled(Exception):
         """Raise in _get_comments if comments are disabled for the video"""
 
+    # 提取评论
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def extract_comments(self, *args, **kwargs):
         if not self.get_param('getcomments'):
             return None
@@ -3770,9 +4420,17 @@ class InfoExtractor:
             }
         return extractor
 
+    # 获取评论
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _get_comments(self, *args, **kwargs):
         raise NotImplementedError('This method must be implemented by subclasses')
 
+    # 合并字幕项
+    # 参数说明:
+    # - subtitle_list1: 字幕列表1
+    # - subtitle_list2: 字幕列表2
     @staticmethod
     def _merge_subtitle_items(subtitle_list1, subtitle_list2):
         """ Merge subtitle items for one language. Items with duplicated URLs/data
@@ -3782,6 +4440,10 @@ class InfoExtractor:
         ret.extend(item for item in subtitle_list2 if (item.get('url'), item.get('data')) not in list1_data)
         return ret
 
+    # 合并字幕字典
+    # 参数说明:
+    # - *dicts: 字典
+    # - target: 目标
     @classmethod
     def _merge_subtitles(cls, *dicts, target=None):
         """ Merge subtitle dictionaries, language by language. """
@@ -3792,12 +4454,20 @@ class InfoExtractor:
                 target[lang] = cls._merge_subtitle_items(target.get(lang, []), subs)
         return target
 
+    # 提取自动字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def extract_automatic_captions(self, *args, **kwargs):
         if (self.get_param('writeautomaticsub', False)
                 or self.get_param('listsubtitles')):
             return self._get_automatic_captions(*args, **kwargs)
         return {}
 
+    # 获取自动字幕
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _get_automatic_captions(self, *args, **kwargs):
         raise NotImplementedError('This method must be implemented by subclasses')
 
@@ -3806,15 +4476,26 @@ class InfoExtractor:
         """Whether cookies have been passed to YoutubeDL"""
         return self.get_param('cookiefile') is not None or self.get_param('cookiesfrombrowser') is not None
 
+    # 标记已观看
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def mark_watched(self, *args, **kwargs):
         if not self.get_param('mark_watched', False):
             return
         if (self.supports_login() and self._get_login_info()[0] is not None) or self._cookies_passed:
             self._mark_watched(*args, **kwargs)
 
+    # 标记已观看
+    # 参数说明:
+    # - *args: 参数
+    # - **kwargs: 关键字参数
     def _mark_watched(self, *args, **kwargs):
         raise NotImplementedError('This method must be implemented by subclasses')
 
+    # 获取地理验证代理
+    # 参数说明:
+    # - 无
     def geo_verification_headers(self):
         headers = {}
         geo_verification_proxy = self.get_param('geo_verification_proxy')
@@ -3822,16 +4503,30 @@ class InfoExtractor:
             headers['Ytdl-request-proxy'] = geo_verification_proxy
         return headers
 
+    # 获取通用ID
+    # 参数说明:
+    # - url: URL
     @staticmethod
     def _generic_id(url):
         return urllib.parse.unquote(os.path.splitext(url.rstrip('/').split('/')[-1])[0])
 
+    # 获取通用标题
+    # 参数说明:
+    # - url: URL
+    # - webpage: 网页内容
+    # - default: 默认值
     def _generic_title(self, url='', webpage='', *, default=None):
         return (self._og_search_title(webpage, default=None)
                 or self._html_extract_title(webpage, default=None)
                 or urllib.parse.unquote(os.path.splitext(url_basename(url))[0])
                 or default)
 
+    # 提取章节
+    # 参数说明:
+    # - chapter_list: 章节列表
+    # - start_function: 开始函数
+    # - title_function: 标题函数
+    # - duration: 时长
     def _extract_chapters_helper(self, chapter_list, start_function, title_function, duration, strict=True):
         if not duration:
             return
@@ -3857,6 +4552,10 @@ class InfoExtractor:
                 warn(f'Invalid start time ({issue}) for chapter "{chapter["title"]}"')
         return chapters[1:]
 
+    # 从描述中提取章节
+    # 参数说明:
+    # - description: 描述
+    # - duration: 时长
     def _extract_chapters_from_description(self, description, duration):
         duration_re = r'(?:\d+:)?\d{1,2}:\d{2}'
         sep_re = r'(?m)^\s*(%s)\b\W*\s(%s)\s*$'
@@ -3868,6 +4567,18 @@ class InfoExtractor:
             start_function=lambda x: parse_duration(x[1]), title_function=lambda x: x[0],
             duration=duration, strict=False)
 
+    # 获取可用性
+    # 参数说明:
+    # - is_private: 是否为私密
+    # - needs_premium: 需要付费
+    # - needs_subscription: 需要订阅
+    # - needs_auth: 需要授权
+    # 获取可用性
+    # 参数说明:
+    # - is_private: 是否为私密
+    # - needs_premium: 需要付费
+    # - needs_subscription: 需要订阅
+    # - needs_auth: 需要授权
     @staticmethod
     def _availability(is_private=None, needs_premium=None, needs_subscription=None, needs_auth=None, is_unlisted=None):
         all_known = all(
@@ -3882,6 +4593,12 @@ class InfoExtractor:
             else 'public' if all_known
             else None)
 
+    # 配置参数
+    # 参数说明:
+    # - self: 实例
+    # - key: 键
+    # - default: 默认值
+    # - ie_key: IE键
     def _configuration_arg(self, key, default=NO_DEFAULT, *, ie_key=None, casesense=False):
         '''
         @returns            A list of values for the extractor argument given by "key"
@@ -3895,6 +4612,12 @@ class InfoExtractor:
             return [] if default is NO_DEFAULT else default
         return list(val) if casesense else [x.lower() for x in val]
 
+    # 是否播放列表
+    # 参数说明:
+    # - self: 实例
+    # - playlist_id: 播放列表ID
+    # - video_id: 视频ID
+    # - smuggled_data: 混淆数据
     def _yes_playlist(self, playlist_id, video_id, smuggled_data=None, *, playlist_label='playlist', video_label='video'):
         if not playlist_id or not video_id:
             return not video_id
@@ -3911,21 +4634,42 @@ class InfoExtractor:
         self.to_screen(f'Downloading {playlist_label}{playlist_id} - add --no-playlist to download just the {video_label}{video_id}')
         return True
 
+    # 错误处理  
     def _error_or_warning(self, err, _count=None, _retries=0, *, fatal=True):
+        """处理各种错误情况
+        - 地区限制
+        - 年龄限制
+        - 私密视频
+        - 删除的视频等
+        """
         RetryManager.report_retry(
             err, _count or int(fatal), _retries,
             info=self.to_screen, warn=self.report_warning, error=None if fatal else self.report_warning,
             sleep_func=self.get_param('retry_sleep_functions', {}).get('extractor'))
 
+    # 重试管理器
+    # 参数说明:
+    # - **kwargs: 关键字参数
     def RetryManager(self, **kwargs):
         return RetryManager(self.get_param('extractor_retries', 3), self._error_or_warning, **kwargs)
 
+    # 提取通用嵌套
+    # 参数说明:
+    # - url: URL
+    # - *args: 参数
+    # - info_dict: 信息字典
+    # - note: 备注
     def _extract_generic_embeds(self, url, *args, info_dict={}, note='Extracting generic embeds', **kwargs):
         display_id = traverse_obj(info_dict, 'display_id', 'id')
         self.to_screen(f'{format_field(display_id, None, "%s: ")}{note}')
         return self._downloader.get_info_extractor('Generic')._extract_embeds(
             smuggle_url(url, {'block_ies': [self.ie_key()]}), *args, **kwargs)
 
+    # 从网页提取
+    # 参数说明:
+    # - ydl: 实例
+    # - url: URL
+    # - webpage: 网页内容
     @classmethod
     def extract_from_webpage(cls, ydl, url, webpage):
         ie = (cls if isinstance(cls._extract_from_webpage, types.MethodType)
@@ -3935,12 +4679,22 @@ class InfoExtractor:
             ydl.add_default_extra_info(info, ie, None)
             yield info
 
+    # 从网页提取
+    # 参数说明:
+    # - cls: 类
+    # - url: URL
+    # - webpage: 网页内容
     @classmethod
     def _extract_from_webpage(cls, url, webpage):
         for embed_url in orderedSet(
                 cls._extract_embed_urls(url, webpage) or [], lazy=True):
             yield cls.url_result(embed_url, None if cls._VALID_URL is False else cls)
 
+    # 提取嵌套URL
+    # 参数说明:
+    # - cls: 类
+    # - url: URL
+    # - webpage: 网页内容
     @classmethod
     def _extract_embed_urls(cls, url, webpage):
         """@returns all the embed urls on the webpage"""
@@ -3960,11 +4714,19 @@ class InfoExtractor:
     class StopExtraction(Exception):
         pass
 
+    # 提取URL
+    # 参数说明:
+    # - cls: 类
+    # - webpage: 网页内容
     @classmethod
     def _extract_url(cls, webpage):  # TODO: Remove
         """Only for compatibility with some older extractors"""
         return next(iter(cls._extract_embed_urls(None, webpage) or []), None)
 
+    # 初始化子类
+    # 参数说明:
+    # - plugin_name: 插件名称
+    # - **kwargs: 关键字参数
     @classmethod
     def __init_subclass__(cls, *, plugin_name=None, **kwargs):
         if plugin_name:
@@ -3994,6 +4756,9 @@ class SearchInfoExtractor(InfoExtractor):
     def _VALID_URL(cls):
         return rf'{cls._SEARCH_KEY}(?P<prefix>|[1-9][0-9]*|all):(?P<query>[\s\S]+)'
 
+    # 提取
+    # 参数说明:
+    # - query: 查询
     def _real_extract(self, query):
         prefix, query = self._match_valid_url(query).group('prefix', 'query')
         if prefix == '':
@@ -4009,6 +4774,10 @@ class SearchInfoExtractor(InfoExtractor):
                 n = self._MAX_RESULTS
             return self._get_n_results(query, n)
 
+    # 获取指定数量的结果
+    # 参数说明:
+    # - query: 查询
+    # - n: 数量
     def _get_n_results(self, query, n):
         """Get a specified number of results for a query.
         Either this function or _search_results must be overridden by subclasses """
@@ -4016,10 +4785,16 @@ class SearchInfoExtractor(InfoExtractor):
             itertools.islice(self._search_results(query), 0, None if n == float('inf') else n),
             query, query)
 
+    # 搜索结果
+    # 参数说明:
+    # - query: 查询
     def _search_results(self, query):
         """Returns an iterator of search results"""
         raise NotImplementedError('This method must be implemented by subclasses')
 
+    # 搜索键
+    # 参数说明:
+    # - cls: 类
     @classproperty
     def SEARCH_KEY(cls):
         return cls._SEARCH_KEY
@@ -4030,6 +4805,9 @@ class UnsupportedURLIE(InfoExtractor):
     _ENABLED = False
     IE_DESC = False
 
+    # 提取
+    # 参数说明:
+    # - url: URL
     def _real_extract(self, url):
         raise UnsupportedError(url)
 

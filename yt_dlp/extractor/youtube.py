@@ -566,7 +566,8 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
             self.report_warning(
                 f'Preferring "{preferred_lang}" translated fields. Note that some metadata extraction may fail or be incorrect.')
         return preferred_lang
-
+    
+    # 初始化 cookie
     def _initialize_consent(self):
         print('YoutubeBaseInfoExtractor _initialize_consent')
         cookies = self._get_cookies('https://www.youtube.com/')
@@ -3018,7 +3019,8 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         if qs.get('list', [None])[0]:
             return False
         return super().suitable(url)
-
+    
+    # 首先调用 YoutubeBaseInfoExtractor 的初始化方法
     def __init__(self, *args, **kwargs):
         print('YoutubeIE __init__')
         super().__init__(*args, **kwargs)
@@ -4314,8 +4316,15 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         else:
             self.report_warning(msg, only_once=True)
 
+    # 提取格式信息
     def _extract_formats_and_subtitles(self, streaming_data, video_id, player_url, live_status, duration):
         print('YoutubeIE _extract_formats_and_subtitles')
+        """
+        从流数据中提取视频格式和字幕信息
+        - 解析不同质量的视频流
+        - 提取字幕信息
+        - 处理直播流
+        """
         CHUNK_SIZE = 10 << 20
         PREFERRED_LANG_VALUE = 10
         original_language = None
@@ -4647,8 +4656,15 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 } for j in range(math.ceil(fragment_count))],
             }
 
+    # 下载播放器响应
     def _download_player_responses(self, url, smuggled_data, video_id, webpage_url):
         print('YoutubeIE _download_player_responses')
+        """
+        下载并解析视频页面和播放器配置
+        - 下载网页
+        - 提取 ytcfg 配置
+        - 获取播放器响应
+        """
         webpage = None
         if 'webpage' not in self._configuration_arg('player_skip'):
             query = {'bpctr': '9999999999', 'has_verified': '1'}
@@ -4682,6 +4698,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                        else 'not_live' if False in (is_live, live_content)
                        else None)
         streaming_data = traverse_obj(player_responses, (..., 'streamingData'))
+        # 提取格式信息
         *formats, subtitles = self._extract_formats_and_subtitles(streaming_data, video_id, player_url, live_status, duration)
         if all(f.get('has_drm') for f in formats):
             # If there are no formats that definitely don't have DRM, all have DRM
@@ -4690,13 +4707,15 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
         return live_broadcast_details, live_status, streaming_data, formats, subtitles
 
+    # 开始提取视频信息
     def _real_extract(self, url):
         print('YoutubeIE _real_extract')
         url, smuggled_data = unsmuggle_url(url, {})
+        # 提取视频 ID
         video_id = self._match_id(url)
         base_url = self.http_scheme() + '//www.youtube.com/'
         webpage_url = base_url + 'watch?v=' + video_id
-
+        # 下载播放器响应
         webpage, master_ytcfg, player_responses, player_url = self._download_player_responses(url, smuggled_data, video_id, webpage_url)
 
         playability_statuses = traverse_obj(
