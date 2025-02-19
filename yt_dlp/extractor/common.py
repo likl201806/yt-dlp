@@ -1155,6 +1155,7 @@ class InfoExtractor:
                 kwargs.pop('transform_source')
             # The method is fetched by name so subclasses can override _download_..._handle
             res = getattr(self, download_handle.__name__)(url_or_request, video_id, **kwargs)
+            print(f'url: {url_or_request} video_id: {video_id} headers: {headers} query: {query}, data: {data}')
             return res if res is False else res[0]
 
         def impersonate(func, name, return_value):
