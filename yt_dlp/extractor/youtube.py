@@ -304,7 +304,7 @@ INNERTUBE_CLIENTS = {
 
 # 分割innertube客户端
 def _split_innertube_client(client_name):
-    print('_split_innertube_client')
+    print('youtube _split_innertube_client 分割innertube客户端')
     variant, *base = client_name.rsplit('.', 1)
     if base:
         return variant, base[0], variant
@@ -313,13 +313,13 @@ def _split_innertube_client(client_name):
 
 # 短客户端名称
 def short_client_name(client_name):
-    print('short_client_name')
+    print('youtube short_client_name 短客户端名称')
     main, *parts = _split_innertube_client(client_name)[0].split('_')
     return join_nonempty(main[:4], ''.join(x[0] for x in parts)).upper()
 
 # 构建innertube客户端
 def build_innertube_clients():
-    print('build_innertube_clients')
+    print('youtube build_innertube_clients 构建innertube客户端')
     THIRD_PARTY = {
         'embedUrl': 'https://www.youtube.com/',  # Can be any valid URL
     }
@@ -538,24 +538,24 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 检查并返回有效的YouTube频道UCID，如果无效则返回None
     def ucid_or_none(self, ucid):
-        print('YoutubeBaseInfoExtractor ucid_or_none')
+        print('youtube YoutubeBaseInfoExtractor ucid_or_none 检查并返回有效的YouTube频道UCID，如果无效则返回None')
         return self._search_regex(rf'^({self._YT_CHANNEL_UCID_RE})$', ucid, 'UC-id', default=None)
 
     # 检查并返回有效的YouTube频道句柄，如果无效则返回None
     def handle_or_none(self, handle):
-        print('YoutubeBaseInfoExtractor handle_or_none')
+        print('youtube YoutubeBaseInfoExtractor handle_or_none 检查并返回有效的YouTube频道句柄，如果无效则返回None')
         return self._search_regex(rf'^({self._YT_HANDLE_RE})$', urllib.parse.unquote(handle or ''),
                                   '@-handle', default=None)
     
     # 从URL中提取并返回YouTube频道句柄，如果无效则返回None
     def handle_from_url(self, url):
-        print('YoutubeBaseInfoExtractor handle_from_url')
+        print('youtube YoutubeBaseInfoExtractor handle_from_url 从URL中提取并返回YouTube频道句柄，如果无效则返回None')
         return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_HANDLE_RE})',
                                   urllib.parse.unquote(url or ''), 'channel handle', default=None)
     
     # 从URL中提取并返回YouTube频道UCID，如果无效则返回None
     def ucid_from_url(self, url):
-        print('YoutubeBaseInfoExtractor ucid_from_url')
+        print('youtube YoutubeBaseInfoExtractor ucid_from_url 从URL中提取并返回YouTube频道UCID，如果无效则返回None')
         return self._search_regex(rf'^(?:https?://(?:www\.)?youtube\.com)?/({self._YT_CHANNEL_UCID_RE})',
                                   url, 'channel id', default=None)
 
@@ -564,7 +564,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 如果首选语言不是英语，则发出警告，提示某些元数据提取可能会失败或不正确。
     @functools.cached_property
     def _preferred_lang(self):
-        print('YoutubeBaseInfoExtractor _preferred_lang')
+        print('youtube YoutubeBaseInfoExtractor _preferred_lang 返回用户首选语言的语言代码，如果没有设置首选语言则返回 None。')
         """
         Returns a language code supported by YouTube for the user preferred language.
         Returns None if no preferred language set.
@@ -583,7 +583,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     
     # 初始化 cookie
     def _initialize_consent(self):
-        print('YoutubeBaseInfoExtractor _initialize_consent')
+        print('youtube YoutubeBaseInfoExtractor _initialize_consent 初始化 cookie')
         cookies = self._get_cookies('https://www.youtube.com/')
         if cookies.get('__Secure-3PSID'):
             return
@@ -594,7 +594,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 初始化用户偏好设置
     def _initialize_pref(self):
-        print('YoutubeBaseInfoExtractor _initialize_pref')
+        print('youtube YoutubeBaseInfoExtractor _initialize_pref 初始化用户偏好设置')
         cookies = self._get_cookies('https://www.youtube.com/')
         pref_cookie = cookies.get('PREF')
         pref = {}
@@ -608,14 +608,14 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 初始化cookie认证
     def _initialize_cookie_auth(self):
-        print('YoutubeBaseInfoExtractor _initialize_cookie_auth')
+        print('youtube YoutubeBaseInfoExtractor _initialize_cookie_auth 初始化cookie认证')
         yt_sapisid, yt_1psapisid, yt_3psapisid = self._get_sid_cookies()
         if yt_sapisid or yt_1psapisid or yt_3psapisid:
             self.write_debug('Found YouTube account cookies')
 
     # 检查并初始化登录状态
     def _real_initialize(self):
-        print('YoutubeBaseInfoExtractor _real_initialize')
+        print('youtube YoutubeBaseInfoExtractor _real_initialize 检查并初始化登录状态')
         self._initialize_pref()
         self._initialize_consent()
         self._initialize_cookie_auth()
@@ -623,7 +623,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 执行登录
     def _perform_login(self, username, password):
-        print('YoutubeBaseInfoExtractor _perform_login')
+        print('youtube YoutubeBaseInfoExtractor _perform_login 执行登录')
         if username.startswith('oauth'):
             raise ExtractorError(
                 f'Login with OAuth is no longer supported. {self._youtube_login_hint}', expected=True)
@@ -634,14 +634,14 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 返回登录提示信息
     @property
     def _youtube_login_hint(self):
-        print('YoutubeBaseInfoExtractor _youtube_login_hint')
+        print('youtube YoutubeBaseInfoExtractor _youtube_login_hint 返回登录提示信息')
         return (f'{self._login_hint(method="cookies")}. Also see  '
                 'https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  '
                 'for tips on effectively exporting YouTube cookies')
 
     # 检查是否需要登录
     def _check_login_required(self):
-        print('YoutubeBaseInfoExtractor _check_login_required')
+        print('youtube YoutubeBaseInfoExtractor _check_login_required 检查是否需要登录')
         if self._LOGIN_REQUIRED and not self.is_authenticated:
             self.raise_login_required(
                 f'Login details are needed to download this content. {self._youtube_login_hint}', method=None)
@@ -652,44 +652,44 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 获取默认的ytcfg
     def _get_default_ytcfg(self, client='web'):
-        print('YoutubeBaseInfoExtractor _get_default_ytcfg')
+        print('youtube YoutubeBaseInfoExtractor _get_default_ytcfg 获取默认的ytcfg')
         return copy.deepcopy(INNERTUBE_CLIENTS[client])
 
     # 获取INNERTUBE_HOST
     def _get_innertube_host(self, client='web'):
-        print('YoutubeBaseInfoExtractor _get_innertube_host')
+        print('youtube YoutubeBaseInfoExtractor _get_innertube_host 获取INNERTUBE_HOST')
         return INNERTUBE_CLIENTS[client]['INNERTUBE_HOST']
 
     # 获取ytcfg的值
     def _ytcfg_get_safe(self, ytcfg, getter, expected_type=None, default_client='web'):
-        print('YoutubeBaseInfoExtractor _ytcfg_get_safe')
+        print('youtube YoutubeBaseInfoExtractor _ytcfg_get_safe 获取ytcfg的值')
         # try_get but with fallback to default ytcfg client values when present
         _func = lambda y: try_get(y, getter, expected_type)
         return _func(ytcfg) or _func(self._get_default_ytcfg(default_client))
 
     # 提取INNERTUBE_CLIENT_NAME
     def _extract_client_name(self, ytcfg, default_client='web'):
-        print('YoutubeBaseInfoExtractor _extract_client_name')
+        print('youtube YoutubeBaseInfoExtractor _extract_client_name 提取INNERTUBE_CLIENT_NAME')
         return self._ytcfg_get_safe(
             ytcfg, (lambda x: x['INNERTUBE_CLIENT_NAME'],
                     lambda x: x['INNERTUBE_CONTEXT']['client']['clientName']), str, default_client)
 
     # 提取INNERTUBE_CLIENT_VERSION
     def _extract_client_version(self, ytcfg, default_client='web'):
-        print('YoutubeBaseInfoExtractor _extract_client_version')
+        print('youtube YoutubeBaseInfoExtractor _extract_client_version 提取INNERTUBE_CLIENT_VERSION')
         return self._ytcfg_get_safe(
             ytcfg, (lambda x: x['INNERTUBE_CLIENT_VERSION'],
                     lambda x: x['INNERTUBE_CONTEXT']['client']['clientVersion']), str, default_client)
 
     # 选择API主机名
     def _select_api_hostname(self, req_api_hostname, default_client=None):
-        print('YoutubeBaseInfoExtractor _select_api_hostname')
+        print('youtube YoutubeBaseInfoExtractor _select_api_hostname 选择API主机名')
         return (self._configuration_arg('innertube_host', [''], ie_key=YoutubeIE.ie_key())[0]
                 or req_api_hostname or self._get_innertube_host(default_client or 'web'))
 
     # 提取INNERTUBE_CONTEXT
     def _extract_context(self, ytcfg=None, default_client='web'):
-        print('YoutubeBaseInfoExtractor _extract_context')
+        print('youtube YoutubeBaseInfoExtractor _extract_context 提取INNERTUBE_CONTEXT')
         context = get_first(
             (ytcfg, self._get_default_ytcfg(default_client)), 'INNERTUBE_CONTEXT', expected_type=dict)
         # Enforce language and tz for extraction
@@ -700,7 +700,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 生成SID授权
     @staticmethod
     def _make_sid_authorization(scheme, sid, origin, additional_parts):
-        print('YoutubeBaseInfoExtractor _make_sid_authorization')
+        print('youtube YoutubeBaseInfoExtractor _make_sid_authorization 生成SID授权')
         timestamp = str(round(time.time()))
 
         hash_parts = []
@@ -717,7 +717,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 获取SID cookies
     def _get_sid_cookies(self):
-        print('YoutubeBaseInfoExtractor _get_sid_cookies')
+        print('youtube YoutubeBaseInfoExtractor _get_sid_cookies 获取SID cookies')
         """
         Get SAPISID, 1PSAPISID, 3PSAPISID cookie values
         @returns sapisid, 1psapisid, 3psapisid
@@ -735,7 +735,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 获取SID授权头
     def _get_sid_authorization_header(self, origin='https://www.youtube.com', user_session_id=None):
-        print('YoutubeBaseInfoExtractor _get_sid_authorization_header')
+        print('youtube YoutubeBaseInfoExtractor _get_sid_authorization_header 获取SID授权头')
         """
         Generate API Session ID Authorization for Innertube requests. Assumes all requests are secure (https).
         @param origin: Origin URL
@@ -765,7 +765,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     def _call_api(self, ep, query, video_id, fatal=True, headers=None,
                   note='Downloading API JSON', errnote='Unable to download API page',
                   context=None, api_key=None, api_hostname=None, default_client='web'):
-        print('YoutubeBaseInfoExtractor _call_api')
+        print('youtube YoutubeBaseInfoExtractor _call_api 调用API')
         data = {'context': context} if context else {'context': self._extract_context(default_client=default_client)}
         data.update(query)
         real_headers = self.generate_api_headers(default_client=default_client)
@@ -784,13 +784,13 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取yt_initial_data
     def extract_yt_initial_data(self, item_id, webpage, fatal=True):
-        print('YoutubeBaseInfoExtractor extract_yt_initial_data')
+        print('youtube YoutubeBaseInfoExtractor extract_yt_initial_data 提取yt_initial_data')
         return self._search_json(self._YT_INITIAL_DATA_RE, webpage, 'yt initial data', item_id, fatal=fatal)
 
     # 提取session_index
     @staticmethod
     def _extract_session_index(*data):
-        print('YoutubeBaseInfoExtractor _extract_session_index')
+        print('youtube YoutubeBaseInfoExtractor _extract_session_index 提取session_index')
         """
         Index of current account in account list.
         See: https://github.com/yt-dlp/yt-dlp/pull/519
@@ -803,7 +803,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 解析data_sync_id
     @staticmethod
     def _parse_data_sync_id(data_sync_id):
-        print('YoutubeBaseInfoExtractor _parse_data_sync_id')
+        print('youtube YoutubeBaseInfoExtractor _parse_data_sync_id 解析data_sync_id')
         """
         Parse data_sync_id into delegated_session_id and user_session_id.
 
@@ -822,7 +822,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取delegated_session_id
     def _extract_delegated_session_id(self, *args):
-        print('YoutubeBaseInfoExtractor _extract_delegated_session_id')
+        print('youtube YoutubeBaseInfoExtractor _extract_delegated_session_id 提取delegated_session_id')
         """
         Extract current delegated session ID required to download private playlists of secondary channels
         @params response and/or ytcfg
@@ -837,7 +837,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取user_session_id
     def _extract_user_session_id(self, *args):
-        print('YoutubeBaseInfoExtractor _extract_user_session_id')
+        print('youtube YoutubeBaseInfoExtractor _extract_user_session_id 提取user_session_id')
         """
         Extract current user session ID
         @params response and/or ytcfg
@@ -851,7 +851,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取data_sync_id
     def _extract_data_sync_id(self, *args):
-        print('YoutubeBaseInfoExtractor _extract_data_sync_id')
+        print('youtube YoutubeBaseInfoExtractor _extract_data_sync_id 提取data_sync_id')
         """
         Extract current account dataSyncId.
         In the format DELEGATED_SESSION_ID||USER_SESSION_ID or USER_SESSION_ID||
@@ -865,7 +865,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取visitor_data
     def _extract_visitor_data(self, *args):
-        print('YoutubeBaseInfoExtractor _extract_visitor_data')
+        print('youtube YoutubeBaseInfoExtractor _extract_visitor_data 提取visitor_data')
         """
         Extracts visitorData from an API response or ytcfg
         Appears to be used to track session state
@@ -879,12 +879,12 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 检查是否已认证
     @functools.cached_property
     def is_authenticated(self):
-        print('YoutubeBaseInfoExtractor is_authenticated')
+        print('youtube YoutubeBaseInfoExtractor is_authenticated 检查是否已认证')
         return bool(self._get_sid_authorization_header())
 
     # 提取ytcfg
     def extract_ytcfg(self, video_id, webpage):
-        print('extract_ytcfg')
+        print('youtube YoutubeBaseInfoExtractor extract_ytcfg 提取ytcfg')
         if not webpage:
             return {}
         return self._parse_json(
@@ -894,7 +894,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 生成cookie认证头
     def _generate_cookie_auth_headers(self, *, ytcfg=None, delegated_session_id=None, user_session_id=None, session_index=None, origin=None, **kwargs):
-        print('YoutubeBaseInfoExtractor _generate_cookie_auth_headers')
+        print('youtube YoutubeBaseInfoExtractor _generate_cookie_auth_headers 生成cookie认证头')
         headers = {}
         delegated_session_id = delegated_session_id or self._extract_delegated_session_id(ytcfg)
         if delegated_session_id:
@@ -918,7 +918,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     def generate_api_headers(
             self, *, ytcfg=None, delegated_session_id=None, user_session_id=None, session_index=None,
             visitor_data=None, api_hostname=None, default_client='web', **kwargs):
-        print('YoutubeBaseInfoExtractor generate_api_headers')
+        print('youtube YoutubeBaseInfoExtractor generate_api_headers 生成API头')
         origin = 'https://' + (self._select_api_hostname(api_hostname, default_client))
         headers = {
             'X-YouTube-Client-Name': str(
@@ -938,7 +938,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 下载ytcfg
     def _download_ytcfg(self, client, video_id):
-        print('YoutubeBaseInfoExtractor _download_ytcfg')
+        print('youtube YoutubeBaseInfoExtractor _download_ytcfg 下载ytcfg')
         url = {
             'web': 'https://www.youtube.com',
             'web_music': 'https://music.youtube.com',
@@ -957,7 +957,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 构建API续订查询
     @staticmethod
     def _build_api_continuation_query(continuation, ctp=None):
-        print('YoutubeBaseInfoExtractor _build_api_continuation_query')
+        print('youtube YoutubeBaseInfoExtractor _build_api_continuation_query 构建API续订查询')
         query = {
             'continuation': continuation,
         }
@@ -971,7 +971,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取下一个续订数据
     @classmethod
     def _extract_next_continuation_data(cls, renderer):
-        print('YoutubeBaseInfoExtractor _extract_next_continuation_data')
+        print('youtube YoutubeBaseInfoExtractor _extract_next_continuation_data 提取下一个续订数据')
         next_continuation = try_get(
             renderer, (lambda x: x['continuations'][0]['nextContinuationData'],
                        lambda x: x['continuation']['reloadContinuationData']), dict)
@@ -986,7 +986,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取续订数据
     @classmethod
     def _extract_continuation_ep_data(cls, continuation_ep: dict):
-        print('YoutubeBaseInfoExtractor _extract_continuation_ep_data')
+        print('youtube YoutubeBaseInfoExtractor _extract_continuation_ep_data 提取续订数据')
         if isinstance(continuation_ep, dict):
             continuation = try_get(
                 continuation_ep, lambda x: x['continuationCommand']['token'], str)
@@ -998,7 +998,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取续订数据
     @classmethod
     def _extract_continuation(cls, renderer):
-        print('YoutubeBaseInfoExtractor _extract_continuation')
+        print('youtube YoutubeBaseInfoExtractor _extract_continuation 提取续订数据')
         next_continuation = cls._extract_next_continuation_data(renderer)
         if next_continuation:
             return next_continuation
@@ -1011,7 +1011,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取警告
     @classmethod
     def _extract_alerts(cls, data):
-        print('YoutubeBaseInfoExtractor _extract_alerts')
+        print('youtube YoutubeBaseInfoExtractor _extract_alerts 提取警告')
         for alert_dict in try_get(data, lambda x: x['alerts'], list) or []:
             if not isinstance(alert_dict, dict):
                 continue
@@ -1025,7 +1025,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 报告警告
     def _report_alerts(self, alerts, expected=True, fatal=True, only_once=False):
-        print('YoutubeBaseInfoExtractor _report_alerts')
+        print('youtube YoutubeBaseInfoExtractor _report_alerts 报告警告')
         errors, warnings = [], []
         for alert_type, alert_message in alerts:
             if alert_type.lower() == 'error' and fatal:
@@ -1040,12 +1040,12 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 提取并报告警告
     def _extract_and_report_alerts(self, data, *args, **kwargs):
-        print('YoutubeBaseInfoExtractor _extract_and_report_alerts')
+        print('youtube YoutubeBaseInfoExtractor _extract_and_report_alerts 提取并报告警告')
         return self._report_alerts(self._extract_alerts(data), *args, **kwargs)
 
     # 提取徽章
     def _extract_badges(self, badge_list: list):
-        print('YoutubeBaseInfoExtractor _extract_badges')
+        print('youtube YoutubeBaseInfoExtractor _extract_badges 提取徽章')
         """
         Extract known BadgeType's from a list of badge renderers.
         @returns [{'type': BadgeType}]
@@ -1100,13 +1100,13 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 检查徽章
     @staticmethod
     def _has_badge(badges, badge_type):
-        print('YoutubeBaseInfoExtractor _has_badge')
+        print('youtube YoutubeBaseInfoExtractor _has_badge 检查徽章')
         return bool(traverse_obj(badges, lambda _, v: v['type'] == badge_type))
 
     # 获取文本
     @staticmethod
     def _get_text(data, *path_list, max_runs=None):
-        print('YoutubeBaseInfoExtractor _get_text')
+        print('youtube YoutubeBaseInfoExtractor _get_text 获取文本')
         for path in path_list or [None]:
             if path is None:
                 obj = [data]
@@ -1129,7 +1129,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 获取计数
     def _get_count(self, data, *path_list):
-        print('YoutubeBaseInfoExtractor _get_count')
+        print('youtube YoutubeBaseInfoExtractor _get_count 获取计数')
         count_text = self._get_text(data, *path_list) or ''
         count = parse_count(count_text)
         if count is None:
@@ -1140,7 +1140,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取缩略图
     @staticmethod
     def _extract_thumbnails(data, *path_list, final_key='thumbnails'):
-        print('YoutubeBaseInfoExtractor _extract_thumbnails')
+        print('youtube YoutubeBaseInfoExtractor _extract_thumbnails 提取缩略图')
         """
         Extract thumbnails from thumbnails dict
         @param path_list: path list to level that contains 'thumbnails' key
@@ -1166,7 +1166,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 提取相对时间
     @staticmethod
     def extract_relative_time(relative_time_text):
-        print('YoutubeBaseInfoExtractor extract_relative_time')
+        print('youtube YoutubeBaseInfoExtractor extract_relative_time 提取相对时间')
         """
         Extracts a relative time from string and converts to dt object
         e.g. 'streamed 6 days ago', '5 seconds ago (edited)', 'updated today', '8 yr ago'
@@ -1190,7 +1190,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
 
     # 解析时间文本
     def _parse_time_text(self, text):
-        print('YoutubeBaseInfoExtractor _parse_time_text')
+        print('youtube YoutubeBaseInfoExtractor _parse_time_text 解析时间文本')
         if not text:
             return
         dt_ = self.extract_relative_time(text)
@@ -1214,7 +1214,7 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     def _extract_response(self, item_id, query, note='Downloading API JSON', headers=None,
                           ytcfg=None, check_get_keys=None, ep='browse', fatal=True, api_hostname=None,
                           default_client='web'):
-        print('YoutubeBaseInfoExtractor _extract_response')
+        print('youtube YoutubeBaseInfoExtractor _extract_response 提取响应')
         raise_for_incomplete = bool(self._configuration_arg('raise_incomplete_data', ie_key=YoutubeIE))
         # Incomplete Data should be a warning by default when retries are exhausted, while other errors should be fatal.
         icd_retries = iter(self.RetryManager(fatal=raise_for_incomplete))
@@ -1281,12 +1281,12 @@ class YoutubeBaseInfoExtractor(InfoExtractor):
     # 检查是否是音乐URL
     @staticmethod
     def is_music_url(url):
-        print('YoutubeBaseInfoExtractor is_music_url')
+        print('youtube YoutubeBaseInfoExtractor is_music_url 检查是否是音乐URL')
         return re.match(r'(https?://)?music\.youtube\.com/', url) is not None
 
     # 提取视频信息
     def _extract_video(self, renderer):
-        print('YoutubeBaseInfoExtractor _extract_video')
+        print('youtube YoutubeBaseInfoExtractor _extract_video 提取视频信息')
         video_id = renderer.get('videoId')
 
         reel_header_renderer = traverse_obj(renderer, (
@@ -3096,7 +3096,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 否则，调用父类的suitable方法进行进一步检查
     @classmethod
     def suitable(cls, url):
-        print('YoutubeIE suitable')
+        print('youtube YoutubeIE suitable 检查URL是否适合提取器处理')
         from ..utils import parse_qs
 
         qs = parse_qs(url)
@@ -3106,14 +3106,14 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     
     # 首先调用 YoutubeBaseInfoExtractor 的初始化方法
     def __init__(self, *args, **kwargs):
-        print('YoutubeIE __init__')
+        print('youtube YoutubeIE __init__ 首先调用 YoutubeBaseInfoExtractor 的初始化方法')
         super().__init__(*args, **kwargs)
         self._code_cache = {}
         self._player_cache = {}
 
     # 准备直播从开始格式
     def _prepare_live_from_start_formats(self, formats, video_id, live_start_time, url, webpage_url, smuggled_data, is_live):
-        print('YoutubeIE _prepare_live_from_start_formats')
+        print('youtube YoutubeIE _prepare_live_from_start_formats 准备直播从开始格式')
         lock = threading.Lock()
         start_time = time.time()
         formats = [f for f in formats if f.get('is_from_start')]
@@ -3165,7 +3165,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 直播DASH片段
     def _live_dash_fragments(self, video_id, format_id, live_start_time, mpd_feed, manifestless_orig_fmt, ctx):
-        print('YoutubeIE _live_dash_fragments')
+        print('youtube YoutubeIE _live_dash_fragments 直播DASH片段')
         FETCH_SPAN, MAX_DURATION = 5, 432000
 
         mpd_url, stream_number, is_live = None, None, True
@@ -3278,7 +3278,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取播放器URL
     def _extract_player_url(self, *ytcfgs, webpage=None):
-        print('YoutubeIE _extract_player_url')
+        print('youtube YoutubeIE _extract_player_url 提取播放器URL')
         player_url = traverse_obj(
             ytcfgs, (..., 'PLAYER_JS_URL'), (..., 'WEB_PLAYER_CONTEXT_CONFIGS', ..., 'jsUrl'),
             get_all=False, expected_type=str)
@@ -3288,7 +3288,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 下载播放器URL
     def _download_player_url(self, video_id, fatal=False):
-        print('YoutubeIE _download_player_url')
+        print('youtube YoutubeIE _download_player_url 下载播放器URL')
         res = self._download_webpage(
             'https://www.youtube.com/iframe_api',
             note='Downloading iframe API JS', video_id=video_id, fatal=fatal)
@@ -3300,14 +3300,14 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 签名缓存ID
     def _signature_cache_id(self, example_sig):
-        print('YoutubeIE _signature_cache_id')
+        print('youtube YoutubeIE _signature_cache_id 签名缓存ID')
         """ Return a string representation of a signature """
         return '.'.join(str(len(part)) for part in example_sig.split('.'))
 
     # 提取播放器信息
     @classmethod
     def _extract_player_info(cls, player_url):
-        print('YoutubeIE _extract_player_info')
+        print('youtube YoutubeIE _extract_player_info 提取播放器信息')
         for player_re in cls._PLAYER_INFO_RE:
             id_m = re.search(player_re, player_url)
             if id_m:
@@ -3318,7 +3318,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 加载播放器
     def _load_player(self, video_id, player_url, fatal=True):
-        print('YoutubeIE _load_player')
+        print('youtube YoutubeIE _load_player 加载播放器')
         player_id = self._extract_player_info(player_url)
         if player_id not in self._code_cache:
             code = self._download_webpage(
@@ -3331,7 +3331,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取签名函数
     def _extract_signature_function(self, video_id, player_url, example_sig):
-        print('YoutubeIE _extract_signature_function')
+        print('youtube YoutubeIE _extract_signature_function 提取签名函数')
         player_id = self._extract_player_info(player_url)
 
         # Read from filesystem cache
@@ -3353,7 +3353,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 打印签名代码
     def _print_sig_code(self, func, example_sig):
-        print('YoutubeIE _print_sig_code')
+        print('youtube YoutubeIE _print_sig_code 打印签名代码')
         if not self.get_param('youtube_print_sig_code'):
             return
 
@@ -3396,7 +3396,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 解析签名JS
     def _parse_sig_js(self, jscode):
-        print('YoutubeIE _parse_sig_js')
+        print('youtube YoutubeIE _parse_sig_js 解析签名JS')
         # Examples where `sig` is funcname:
         # sig=function(a){a=a.split(""); ... ;return a.join("")};
         # ;c&&(c=sig(decodeURIComponent(c)),a.set(b,encodeURIComponent(c)));return a};
@@ -3426,7 +3426,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 缓存
     def _cached(self, func, *cache_id):
-        print('YoutubeIE _cached')
+        print('youtube YoutubeIE _cached 缓存')
         def inner(*args, **kwargs):
             if cache_id not in self._player_cache:
                 try:
@@ -3444,7 +3444,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 解密签名
     def _decrypt_signature(self, s, video_id, player_url):
-        print('YoutubeIE _decrypt_signature')
+        print('youtube YoutubeIE _decrypt_signature 解密签名')
         """Turn the encrypted s field into a working signature"""
         extract_sig = self._cached(
             self._extract_signature_function, 'sig', player_url, self._signature_cache_id(s))
@@ -3454,7 +3454,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 解密nsig
     def _decrypt_nsig(self, s, video_id, player_url):
-        print('YoutubeIE _decrypt_nsig')
+        print('youtube YoutubeIE _decrypt_nsig 解密nsig')
         """Turn the encrypted n field into a working signature"""
         if player_url is None:
             raise ExtractorError('Cannot decrypt nsig without player_url')
@@ -3490,7 +3490,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取n函数名称
     def _extract_n_function_name(self, jscode, player_url=None):
-        print('YoutubeIE _extract_n_function_name')
+        print('youtube YoutubeIE _extract_n_function_name 提取n函数名称')
         # Examples (with placeholders nfunc, narray, idx):
         # *  .get("n"))&&(b=nfunc(b)
         # *  .get("n"))&&(b=narray[idx](b)
@@ -3535,14 +3535,14 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 修复n函数代码
     def _fixup_n_function_code(self, argnames, code):
-        print('YoutubeIE _fixup_n_function_code')
+        print('youtube YoutubeIE _fixup_n_function_code 修复n函数代码')
         return argnames, re.sub(
             rf';\s*if\s*\(\s*typeof\s+[a-zA-Z0-9_$]+\s*===?\s*(["\'])undefined\1\s*\)\s*return\s+{argnames[0]};',
             ';', code)
 
     # 提取n函数代码
     def _extract_n_function_code(self, video_id, player_url):
-        print('YoutubeIE _extract_n_function_code')
+        print('youtube YoutubeIE _extract_n_function_code 提取n函数代码')
         player_id = self._extract_player_info(player_url)
         func_code = self.cache.load('youtube-nsig', player_id, min_ver='2024.07.09')
         jscode = func_code or self._load_player(video_id, player_url)
@@ -3561,7 +3561,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 从代码中提取n函数
     def _extract_n_function_from_code(self, jsi, func_code):
-        print('YoutubeIE _extract_n_function_from_code')
+        print('youtube YoutubeIE _extract_n_function_from_code 从代码中提取n函数')
         func = jsi.extract_function_from_code(*func_code)
 
         def extract_nsig(s):
@@ -3580,7 +3580,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取签名时间戳
     def _extract_signature_timestamp(self, video_id, player_url, ytcfg=None, fatal=False):
-        print('YoutubeIE _extract_signature_timestamp')
+        print('youtube YoutubeIE _extract_signature_timestamp 提取签名时间戳')
         """
         Extract signatureTimestamp (sts)
         Required to tell API what sig/player version is in use.
@@ -3606,7 +3606,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 标记已观看
     def _mark_watched(self, video_id, player_responses):
-        print('YoutubeIE _mark_watched')
+        print('youtube YoutubeIE _mark_watched 标记已观看')
         for is_full, key in enumerate(('videostatsPlaybackUrl', 'videostatsWatchtimeUrl')):
             label = 'fully ' if is_full else ''
             url = get_first(player_responses, ('playbackTracking', key, 'baseUrl'),
@@ -3650,7 +3650,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 从网页中提取
     @classmethod
     def _extract_from_webpage(cls, url, webpage):
-        print('YoutubeIE _extract_from_webpage')
+        print('youtube YoutubeIE _extract_from_webpage 从网页中提取')
         # Invidious Instances
         # https://github.com/yt-dlp/yt-dlp/issues/195
         # https://github.com/iv-org/invidious/pull/1730
@@ -3676,7 +3676,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 提取ID
     @classmethod
     def extract_id(cls, url):
-        print('YoutubeIE extract_id')
+        print('youtube YoutubeIE extract_id 提取ID')
         video_id = cls.get_temp_id(url)
         if not video_id:
             raise ExtractorError(f'Invalid URL: {url}')
@@ -3684,7 +3684,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 从JSON中提取章节
     def _extract_chapters_from_json(self, data, duration):
-        print('YoutubeIE _extract_chapters_from_json')
+        print('youtube YoutubeIE _extract_chapters_from_json 从JSON中提取章节')
         chapter_list = traverse_obj(
             data, (
                 'playerOverlays', 'playerOverlayRenderer', 'decoratedPlayerBarRenderer',
@@ -3701,7 +3701,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 从互动面板中提取章节
     def _extract_chapters_from_engagement_panel(self, data, duration):
-        print('YoutubeIE _extract_chapters_from_engagement_panel')
+        print('youtube YoutubeIE _extract_chapters_from_engagement_panel 从互动面板中提取章节')
         content_list = traverse_obj(
             data,
             ('engagementPanels', ..., 'engagementPanelSectionListRenderer', 'content', 'macroMarkersListRenderer', 'contents'),
@@ -3716,7 +3716,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取热图
     def _extract_heatmap(self, data):
-        print('YoutubeIE _extract_heatmap')
+        print('youtube YoutubeIE _extract_heatmap 提取热图')
         return traverse_obj(data, (
             'frameworkUpdates', 'entityBatchUpdate', 'mutations',
             lambda _, v: v['payload']['macroMarkersListEntity']['markersList']['markerType'] == 'MARKER_TYPE_HEATMAP',
@@ -3728,7 +3728,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取评论
     def _extract_comment(self, entities, parent=None):
-        print('YoutubeIE _extract_comment')
+        print('youtube YoutubeIE _extract_comment 提取评论')
         comment_entity_payload = get_first(entities, ('payload', 'commentEntityPayload', {dict}))
         if not (comment_id := traverse_obj(comment_entity_payload, ('properties', 'commentId', {str}))):
             return
@@ -3759,7 +3759,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取旧评论
     def _extract_comment_old(self, comment_renderer, parent=None):
-        print('YoutubeIE _extract_comment_old')
+        print('youtube YoutubeIE _extract_comment_old 提取旧评论')
         comment_id = comment_renderer.get('commentId')
         if not comment_id:
             return
@@ -3810,7 +3810,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取评论条目
     def _comment_entries(self, root_continuation_data, ytcfg, video_id, parent=None, tracker=None):
-        print('YoutubeIE _comment_entries')
+        print('youtube YoutubeIE _comment_entries 提取评论条目')
         get_single_config_arg = lambda c: self._configuration_arg(c, [''])[0]
 
         # 提取头
@@ -4017,7 +4017,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 生成评论延续
     @staticmethod
     def _generate_comment_continuation(video_id):
-        print('YoutubeIE _generate_comment_continuation')
+        print('youtube YoutubeIE _generate_comment_continuation 生成评论延续')
         """
         Generates initial comment section continuation token from given video id
         """
@@ -4026,7 +4026,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 获取评论
     def _get_comments(self, ytcfg, video_id, contents, webpage):
-        print('YoutubeIE _get_comments')
+        print('youtube YoutubeIE _get_comments 获取评论')
         """Entry for comment extraction"""
         def _real_comment_extract(contents):
             renderer = next((
@@ -4040,13 +4040,13 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 获取检查OK参数
     @staticmethod
     def _get_checkok_params():
-        print('YoutubeIE _get_checkok_params')
+        print('youtube YoutubeIE _get_checkok_params 获取检查OK参数')
         return {'contentCheckOk': True, 'racyCheckOk': True}
 
     # 生成播放器上下文
     @classmethod
     def _generate_player_context(cls, sts=None):
-        print('YoutubeIE _generate_player_context')
+        print('youtube YoutubeIE _generate_player_context 生成播放器上下文')
         context = {
             'html5Preference': 'HTML5_PREF_WANTS',
         }
@@ -4061,7 +4061,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 获取配置PO Token
     def _get_config_po_token(self, client: str, context: _PoTokenContext):
-        print('YoutubeIE _get_config_po_token')
+        print('youtube YoutubeIE _get_config_po_token 获取配置PO Token')
         po_token_strs = self._configuration_arg('po_token', [], ie_key=YoutubeIE, casesense=True)
         for token_str in po_token_strs:
             po_token_meta, sep, po_token = token_str.partition('+')
@@ -4100,7 +4100,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 获取PO Token
     def fetch_po_token(self, client='web', context=_PoTokenContext.GVS, ytcfg=None, visitor_data=None,
                        data_sync_id=None, session_index=None, player_url=None, video_id=None, **kwargs):
-        print('YoutubeIE fetch_po_token')
+        print('youtube YoutubeIE fetch_po_token 获取PO Token')
         """
         Fetch a PO Token for a given client and context. This function will validate required parameters for a given context and client.
 
@@ -4162,13 +4162,13 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 获取PO Token
     def _fetch_po_token(self, client, **kwargs):
-        print('YoutubeIE _fetch_po_token')
+        print('youtube YoutubeIE _fetch_po_token 获取PO Token')
         """(Unstable) External PO Token fetch stub"""
 
     # 检查是否受限
     @staticmethod
     def _is_agegated(player_response):
-        print('YoutubeIE _is_agegated')
+        print('youtube YoutubeIE _is_agegated 检查是否受限')
         if traverse_obj(player_response, ('playabilityStatus', 'desktopLegacyAgeGateReason')):
             return True
 
@@ -4182,12 +4182,12 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
     # 检查是否不可播放
     @staticmethod
     def _is_unplayable(player_response):
-        print('YoutubeIE _is_unplayable')
+        print('youtube YoutubeIE _is_unplayable 检查是否不可播放')
         return traverse_obj(player_response, ('playabilityStatus', 'status')) == 'UNPLAYABLE'
 
     # 提取播放器响应
     def _extract_player_response(self, client, video_id, master_ytcfg, player_ytcfg, player_url, initial_pr, visitor_data, data_sync_id, po_token):
-        print('YoutubeIE _extract_player_response')
+        print('youtube YoutubeIE _extract_player_response 提取播放器响应')
         headers = self.generate_api_headers(
             ytcfg=player_ytcfg,
             default_client=client,
@@ -4226,7 +4226,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 获取请求的客户端
     def _get_requested_clients(self, url, smuggled_data):
-        print('YoutubeIE _get_requested_clients')
+        print('youtube YoutubeIE _get_requested_clients 获取请求的客户端')
         requested_clients = []
         excluded_clients = []
         default_clients = self._DEFAULT_AUTHED_CLIENTS if self.is_authenticated else self._DEFAULT_CLIENTS
@@ -4267,7 +4267,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 无效的播放器响应
     def _invalid_player_response(self, pr, video_id):
-        print('YoutubeIE _invalid_player_response')
+        print('youtube YoutubeIE _invalid_player_response 无效的播放器响应')
         # YouTube may return a different video player response than expected.
         # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
         if (pr_id := traverse_obj(pr, ('videoDetails', 'videoId'))) != video_id:
@@ -4275,7 +4275,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取播放器响应
     def _extract_player_responses(self, clients, video_id, webpage, master_ytcfg, smuggled_data):
-        print('YoutubeIE _extract_player_responses')
+        print('youtube YoutubeIE _extract_player_responses 提取播放器响应')
         initial_pr = None
         if webpage:
             initial_pr = self._search_json(
@@ -4425,14 +4425,14 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 需要直播处理
     def _needs_live_processing(self, live_status, duration):
-        print('YoutubeIE _needs_live_processing')
+        print('youtube YoutubeIE _needs_live_processing 需要直播处理')
         if ((live_status == 'is_live' and self.get_param('live_from_start'))
                 or (live_status == 'post_live' and (duration or 0) > 2 * 3600)):
             return live_status
 
     # 报告PO Token格式跳过
     def _report_pot_format_skipped(self, video_id, client_name, proto):
-        print('YoutubeIE _report_pot_format_skipped')
+        print('youtube YoutubeIE _report_pot_format_skipped 报告PO Token格式跳过')
         msg = (
             f'{video_id}: {client_name} client {proto} formats require a GVS PO Token which was not provided. '
             'They will be skipped as they may yield HTTP Error 403. '
@@ -4455,7 +4455,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
         - 处理直播流
         """
     def _extract_formats_and_subtitles(self, streaming_data, video_id, player_url, live_status, duration):
-        print('YoutubeIE _extract_formats_and_subtitles')
+        print('youtube YoutubeIE _extract_formats_and_subtitles 提取格式和字幕')
         
         CHUNK_SIZE = 10 << 20
         PREFERRED_LANG_VALUE = 10
@@ -4751,7 +4751,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 提取故事板
     def _extract_storyboard(self, player_responses, duration):
-        print('YoutubeIE _extract_storyboard')
+        print('youtube YoutubeIE _extract_storyboard 提取故事板')
         spec = get_first(
             player_responses, ('storyboards', 'playerStoryboardSpecRenderer', 'spec'), default='').split('|')[::-1]
         base_url = url_or_none(urljoin('https://i.ytimg.com/', spec.pop() or None))
@@ -4791,7 +4791,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 下载播放器响应
     def _download_player_responses(self, url, smuggled_data, video_id, webpage_url):
-        print('YoutubeIE _download_player_responses')
+        print('youtube YoutubeIE _download_player_responses 下载播放器响应')
         """
         下载并解析视频页面和播放器配置
         - 下载网页
@@ -4817,7 +4817,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 列出格式
     def _list_formats(self, video_id, microformats, video_details, player_responses, player_url, duration=None):
-        print('YoutubeIE _list_formats')
+        print('youtube YoutubeIE _list_formats 列出格式')
         live_broadcast_details = traverse_obj(microformats, (..., 'liveBroadcastDetails'))
         is_live = get_first(video_details, 'isLive')
         if is_live is None:
@@ -4843,7 +4843,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
 
     # 开始提取视频信息
     def _real_extract(self, url):
-        print('YoutubeIE _real_extract')
+        print('youtube YoutubeIE _real_extract 开始提取视频信息')
         url, smuggled_data = unsmuggle_url(url, {})
         # 提取视频 ID
         video_id = self._match_id(url)
@@ -5402,7 +5402,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 通过传递的smuggled数据
     @staticmethod
     def passthrough_smuggled_data(func):
-        print('YoutubeTabBaseInfoExtractor passthrough_smuggled_data')
+        print('youtube YoutubeTabBaseInfoExtractor passthrough_smuggled_data 通过传递的smuggled数据')
         def _smuggle(info, smuggled_data):
             if info.get('_type') not in ('url', 'url_transparent'):
                 return info
@@ -5431,7 +5431,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 提取基本项渲染器
     @staticmethod
     def _extract_basic_item_renderer(item):
-        print('YoutubeTabBaseInfoExtractor _extract_basic_item_renderer')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_basic_item_renderer 提取基本项渲染器')
         # Modified from _extract_grid_item_renderer
         known_basic_renderers = (
             'playlistRenderer', 'videoRenderer', 'channelRenderer', 'showRenderer', 'reelItemRenderer',
@@ -5446,7 +5446,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取频道渲染器
     def _extract_channel_renderer(self, renderer):
-        print('YoutubeTabBaseInfoExtractor _extract_channel_renderer')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_channel_renderer 提取频道渲染器')
         channel_id = self.ucid_or_none(renderer['channelId'])
         title = self._get_text(renderer, 'title')
         channel_url = format_field(channel_id, None, 'https://www.youtube.com/channel/%s', default=None)
@@ -5486,7 +5486,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 网格条目
     def _grid_entries(self, grid_renderer):
-        print('YoutubeTabBaseInfoExtractor _grid_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _grid_entries 网格条目')
         for item in grid_renderer['items']:
             if not isinstance(item, dict):
                 continue
@@ -5530,7 +5530,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 音乐响应列表条目
     def _music_reponsive_list_entry(self, renderer):
-        print('YoutubeTabBaseInfoExtractor _music_reponsive_list_entry')
+        print('youtube YoutubeTabBaseInfoExtractor _music_reponsive_list_entry 音乐响应列表条目')
         video_id = traverse_obj(renderer, ('playlistItemData', 'videoId'))
         if video_id:
             title = traverse_obj(renderer, (
@@ -5553,7 +5553,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 从内容中提取货架条目
     def _shelf_entries_from_content(self, shelf_renderer):
-        print('YoutubeTabBaseInfoExtractor _shelf_entries_from_content')
+        print('youtube YoutubeTabBaseInfoExtractor _shelf_entries_from_content 从内容中提取货架条目')
         content = shelf_renderer.get('content')
         if not isinstance(content, dict):
             return
@@ -5570,7 +5570,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取货架条目
     def _shelf_entries(self, shelf_renderer, skip_channels=False):
-        print('YoutubeTabBaseInfoExtractor _shelf_entries')
+        print('YoutubeTabBaseInfoExtractor _shelf_entries 提取货架条目')
         ep = try_get(
             shelf_renderer, lambda x: x['endpoint']['commandMetadata']['webCommandMetadata']['url'],
             str)
@@ -5588,7 +5588,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 播放列表条目
     def _playlist_entries(self, video_list_renderer):
-        print('YoutubeTabBaseInfoExtractor _playlist_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _playlist_entries 播放列表条目')
         for content in video_list_renderer['contents']:
             if not isinstance(content, dict):
                 continue
@@ -5602,7 +5602,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取锁定视图模型
     def _extract_lockup_view_model(self, view_model):
-        print('YoutubeTabBaseInfoExtractor _extract_lockup_view_model')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_lockup_view_model 提取锁定视图模型')
         content_id = view_model.get('contentId')
         if not content_id:
             return
@@ -5620,7 +5620,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 富条目
     def _rich_entries(self, rich_grid_renderer):
-        print('YoutubeTabBaseInfoExtractor _rich_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _rich_entries 富条目')
         if lockup_view_model := traverse_obj(rich_grid_renderer, ('content', 'lockupViewModel', {dict})):
             if entry := self._extract_lockup_view_model(lockup_view_model):
                 yield entry
@@ -5659,14 +5659,14 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 视频条目
     def _video_entry(self, video_renderer):
-        print('YoutubeTabBaseInfoExtractor _video_entry')
+        print('youtube YoutubeTabBaseInfoExtractor _video_entry 视频条目')
         video_id = video_renderer.get('videoId')
         if video_id:
             return self._extract_video(video_renderer)
 
     # 话题瓷砖条目
     def _hashtag_tile_entry(self, hashtag_tile_renderer):
-        print('YoutubeTabBaseInfoExtractor _hashtag_tile_entry')
+        print('youtube YoutubeTabBaseInfoExtractor _hashtag_tile_entry 话题瓷砖条目')
         url = urljoin('https://youtube.com', traverse_obj(
             hashtag_tile_renderer, ('onTapCommand', 'commandMetadata', 'webCommandMetadata', 'url')))
         if url:
@@ -5675,7 +5675,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 帖子线程条目
     def _post_thread_entries(self, post_thread_renderer):
-        print('YoutubeTabBaseInfoExtractor _post_thread_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _post_thread_entries 帖子线程条目')
         post_renderer = try_get(
             post_thread_renderer, lambda x: x['post']['backstagePostRenderer'], dict)
         if not post_renderer:
@@ -5713,7 +5713,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 帖子线程延续条目
     def _post_thread_continuation_entries(self, post_thread_continuation):
-        print('YoutubeTabBaseInfoExtractor _post_thread_continuation_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _post_thread_continuation_entries 帖子线程延续条目')
         contents = post_thread_continuation.get('contents')
         if not isinstance(contents, list):
             return
@@ -5738,7 +5738,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 报告历史条目
     def _report_history_entries(self, renderer):
-        print('YoutubeTabBaseInfoExtractor _report_history_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _report_history_entries 报告历史条目')
         for url in traverse_obj(renderer, (
                 'rows', ..., 'reportHistoryTableRowRenderer', 'cells', ...,
                 'reportHistoryTableCellRenderer', 'cell', 'reportHistoryTableTextCellRenderer', 'text', 'runs', ...,
@@ -5747,7 +5747,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取条目
     def _extract_entries(self, parent_renderer, continuation_list):
-        print('YoutubeTabBaseInfoExtractor _extract_entries')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_entries 提取条目')
         # continuation_list is modified in-place with continuation_list = [continuation_token]
         continuation_list[:] = [None]
         contents = try_get(parent_renderer, lambda x: x['contents'], list) or []
@@ -5804,7 +5804,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取条目
     def _entries(self, tab, item_id, ytcfg, delegated_session_id, visitor_data):
-        print('YoutubeTabBaseInfoExtractor _entries')
+        print('youtube YoutubeTabBaseInfoExtractor _entries 提取条目')
         continuation_list = [None]
         extract_entries = lambda x: self._extract_entries(x, continuation_list)
         tab_content = try_get(tab, lambda x: x['content'], dict)
@@ -5875,7 +5875,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 提取选中的标签
     @staticmethod
     def _extract_selected_tab(tabs, fatal=True):
-        print('YoutubeTabBaseInfoExtractor _extract_selected_tab')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_selected_tab 提取选中的标签')
         for tab_renderer in tabs:
             if tab_renderer.get('selected'):
                 return tab_renderer
@@ -5885,13 +5885,13 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 提取标签渲染器
     @staticmethod
     def _extract_tab_renderers(response):
-        print('YoutubeTabBaseInfoExtractor _extract_tab_renderers')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_tab_renderers 提取标签渲染器')
         return traverse_obj(
             response, ('contents', 'twoColumnBrowseResultsRenderer', 'tabs', ..., ('tabRenderer', 'expandableTabRenderer')), expected_type=dict)
 
     # 从标签中提取
     def _extract_from_tabs(self, item_id, ytcfg, data, tabs):
-        print('YoutubeTabBaseInfoExtractor _extract_from_tabs')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_from_tabs 从标签中提取')
         metadata = self._extract_metadata_from_tabs(item_id, data)
 
         selected_tab = self._extract_selected_tab(tabs)
@@ -5907,7 +5907,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 从标签中提取元数据
     def _extract_metadata_from_tabs(self, item_id, data):
-        print('YoutubeTabBaseInfoExtractor _extract_metadata_from_tabs')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_metadata_from_tabs 从标签中提取元数据')
         info = {'id': item_id}
 
         metadata_renderer = traverse_obj(data, ('metadata', 'channelMetadataRenderer'), expected_type=dict)
@@ -6042,7 +6042,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取内联播放列表
     def _extract_inline_playlist(self, playlist, playlist_id, data, ytcfg):
-        print('YoutubeTabBaseInfoExtractor _extract_inline_playlist')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_inline_playlist 提取内联播放列表')
         first_id = last_id = response = None
         for page_num in itertools.count(1):
             videos = list(self._playlist_entries(playlist))
@@ -6075,7 +6075,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 从播放列表中提取
     def _extract_from_playlist(self, item_id, url, data, playlist, ytcfg):
-        print('YoutubeTabBaseInfoExtractor _extract_from_playlist')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_from_playlist 从播放列表中提取')
         title = playlist.get('title') or try_get(
             data, lambda x: x['titleText']['simpleText'], str)
         playlist_id = playlist.get('playlistId') or item_id
@@ -6100,7 +6100,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取可用性
     def _extract_availability(self, data):
-        print('YoutubeTabBaseInfoExtractor _extract_availability')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_availability 提取可用性')
         """
         Gets the availability of a given playlist/tab.
         Note: Unless YouTube tells us explicitly, we do not assume it is public
@@ -6144,7 +6144,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 提取侧边栏信息渲染器
     @staticmethod
     def _extract_sidebar_info_renderer(data, info_renderer, expected_type=dict):
-        print('YoutubeTabBaseInfoExtractor _extract_sidebar_info_renderer')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_sidebar_info_renderer 提取侧边栏信息渲染器')
         sidebar_renderer = try_get(
             data, lambda x: x['sidebar']['playlistSidebarRenderer']['items'], list) or []
         for item in sidebar_renderer:
@@ -6154,7 +6154,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 重新加载带有不可用视频的播放列表
     def _reload_with_unavailable_videos(self, item_id, data, ytcfg):
-        print('YoutubeTabBaseInfoExtractor _reload_with_unavailable_videos')
+        print('youtube YoutubeTabBaseInfoExtractor _reload_with_unavailable_videos 重新加载带有不可用视频的播放列表')
         """
         Reload playlists with unavailable videos (e.g. private videos, region blocked, etc.)
         """
@@ -6177,12 +6177,12 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
     # 跳过网页
     @functools.cached_property
     def skip_webpage(self):
-        print('YoutubeTabBaseInfoExtractor skip_webpage')
+        print('youtube YoutubeTabBaseInfoExtractor skip_webpage 跳过网页')
         return 'webpage' in self._configuration_arg('skip', ie_key=YoutubeTabIE.ie_key())
 
     # 提取网页
     def _extract_webpage(self, url, item_id, fatal=True):
-        print('YoutubeTabBaseInfoExtractor _extract_webpage')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_webpage 提取网页')
         webpage, data = None, None
         for retry in self.RetryManager(fatal=fatal):
             try:
@@ -6213,7 +6213,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 报告播放列表认证检查
     def _report_playlist_authcheck(self, ytcfg, fatal=True):
-        print('YoutubeTabBaseInfoExtractor _report_playlist_authcheck')
+        print('youtube YoutubeTabBaseInfoExtractor _report_playlist_authcheck 报告播放列表认证检查')
         """Use if failed to extract ytcfg (and data) from initial webpage"""
         if not ytcfg and self.is_authenticated:
             msg = 'Playlists that require authentication may not extract correctly without a successful webpage download'
@@ -6227,7 +6227,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取数据
     def _extract_data(self, url, item_id, ytcfg=None, fatal=True, webpage_fatal=False, default_client='web'):
-        print('YoutubeTabBaseInfoExtractor _extract_data')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_data 提取数据')
         data = None
         if not self.skip_webpage:
             webpage, data = self._extract_webpage(url, item_id, fatal=webpage_fatal)
@@ -6248,7 +6248,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 提取标签端点
     def _extract_tab_endpoint(self, url, item_id, ytcfg=None, fatal=True, default_client='web'):
-        print('YoutubeTabBaseInfoExtractor _extract_tab_endpoint')
+        print('youtube YoutubeTabBaseInfoExtractor _extract_tab_endpoint 提取标签端点')
         headers = self.generate_api_headers(ytcfg=ytcfg, default_client=default_client)
         resolve_response = self._extract_response(
             item_id=item_id, query={'url': url}, check_get_keys='endpoint', headers=headers, ytcfg=ytcfg, fatal=fatal,
@@ -6271,7 +6271,7 @@ class YoutubeTabBaseInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 搜索结果
     def _search_results(self, query, params=NO_DEFAULT, default_client='web'):
-        print('YoutubeTabBaseInfoExtractor _search_results')
+        print('youtube YoutubeTabBaseInfoExtractor _search_results 搜索结果')
         data = {'query': query}
         if params is NO_DEFAULT:
             params = self._SEARCH_PARAMS
@@ -7376,7 +7376,7 @@ class YoutubeTabIE(YoutubeTabBaseInfoExtractor):
     # 适合
     @classmethod
     def suitable(cls, url):
-        print('YoutubeTabIE suitable')
+        print('youtube YoutubeTabIE suitable 适合')
         return False if YoutubeIE.suitable(url) else super().suitable(url)
 
     # URL正则表达式
@@ -7384,14 +7384,14 @@ class YoutubeTabIE(YoutubeTabBaseInfoExtractor):
 
     # 获取URL对象
     def _get_url_mobj(self, url):
-        print('YoutubeTabIE _get_url_mobj')
+        print('youtube YoutubeTabIE _get_url_mobj 获取URL对象')
         mobj = self._URL_RE.match(url).groupdict()
         mobj.update((k, '') for k, v in mobj.items() if v is None)
         return mobj
 
     # 提取标签ID和名称
     def _extract_tab_id_and_name(self, tab, base_url='https://www.youtube.com'):
-        print('YoutubeTabIE _extract_tab_id_and_name')
+        print('youtube YoutubeTabIE _extract_tab_id_and_name 提取标签ID和名称')
         tab_name = (tab.get('title') or '').lower()
         tab_url = urljoin(base_url, traverse_obj(
             tab, ('endpoint', 'commandMetadata', 'webCommandMetadata', 'url')))
@@ -7415,18 +7415,18 @@ class YoutubeTabIE(YoutubeTabBaseInfoExtractor):
 
     # 检查是否存在标签
     def _has_tab(self, tabs, tab_id):
-        print('YoutubeTabIE _has_tab')
+        print('youtube YoutubeTabIE _has_tab 检查是否存在标签')
         return any(self._extract_tab_id_and_name(tab)[0] == tab_id for tab in tabs)
 
     # 空播放列表
     def _empty_playlist(self, item_id, data):
-        print('YoutubeTabIE _empty_playlist')
+        print('youtube YoutubeTabIE _empty_playlist 空播放列表')
         return self.playlist_result([], item_id, **self._extract_metadata_from_tabs(item_id, data))
 
     # 真实提取
     @YoutubeTabBaseInfoExtractor.passthrough_smuggled_data
     def _real_extract(self, url, smuggled_data):
-        print('YoutubeTabIE _real_extract')
+        print('youtube YoutubeTabIE _real_extract 真实提取')
         item_id = self._match_id(url)
         url = urllib.parse.urlunparse(
             urllib.parse.urlparse(url)._replace(netloc='www.youtube.com'))
@@ -7679,7 +7679,7 @@ class YoutubePlaylistIE(YoutubeBaseInfoExtractor):
     # 适合
     @classmethod
     def suitable(cls, url):
-        print('YoutubePlaylistIE suitable')
+        print('youtube YoutubePlaylistIE suitable 适合')
         if YoutubeTabIE.suitable(url):
             return False
         from ..utils import parse_qs
@@ -7690,7 +7690,7 @@ class YoutubePlaylistIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubePlaylistIE _real_extract')
+        print('youtube YoutubePlaylistIE _real_extract 真实提取')
         playlist_id = self._match_id(url)
         is_music_url = YoutubeBaseInfoExtractor.is_music_url(url)
         url = update_url_query(
@@ -7743,7 +7743,7 @@ class YoutubeYtBeIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeYtBeIE _real_extract')
+        print('youtube YoutubeYtBeIE _real_extract 真实提取')
         mobj = self._match_valid_url(url)
         video_id = mobj.group('id')
         playlist_id = mobj.group('playlist_id')
@@ -7766,7 +7766,7 @@ class YoutubeLivestreamEmbedIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeLivestreamEmbedIE _real_extract')
+        print('youtube YoutubeLivestreamEmbedIE _real_extract 真实提取')
         channel_id = self._match_id(url)
         return self.url_result(
             f'https://www.youtube.com/channel/{channel_id}/live',
@@ -7785,7 +7785,7 @@ class YoutubeYtUserIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeYtUserIE _real_extract')
+        print('youtube YoutubeYtUserIE _real_extract 真实提取')
         user_id = self._match_id(url)
         return self.url_result(f'https://www.youtube.com/user/{user_id}', YoutubeTabIE, user_id)
 
@@ -7806,7 +7806,7 @@ class YoutubeFavouritesIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeFavouritesIE _real_extract')
+        print('youtube YoutubeFavouritesIE _real_extract 真实提取')
         return self.url_result(
             'https://www.youtube.com/playlist?list=LL',
             ie=YoutubeTabIE.ie_key())
@@ -7828,7 +7828,7 @@ class YoutubeNotificationsIE(YoutubeTabBaseInfoExtractor):
 
     # 提取通知菜单
     def _extract_notification_menu(self, response, continuation_list):
-        print('YoutubeNotificationsIE _extract_notification_menu')
+        print('youtube YoutubeNotificationsIE _extract_notification_menu 提取通知菜单')
         notification_list = traverse_obj(
             response,
             ('actions', 0, 'openPopupAction', 'popup', 'multiPageMenuRenderer', 'sections', 0, 'multiPageMenuNotificationSectionRenderer', 'items'),
@@ -7845,7 +7845,7 @@ class YoutubeNotificationsIE(YoutubeTabBaseInfoExtractor):
 
     # 提取通知渲染器
     def _extract_notification_renderer(self, notification):
-        print('YoutubeNotificationsIE _extract_notification_renderer')
+        print('youtube YoutubeNotificationsIE _extract_notification_renderer 提取通知渲染器')
         video_id = traverse_obj(
             notification, ('navigationEndpoint', 'watchEndpoint', 'videoId'), expected_type=str)
         url = f'https://www.youtube.com/watch?v={video_id}'
@@ -7890,7 +7890,7 @@ class YoutubeNotificationsIE(YoutubeTabBaseInfoExtractor):
 
     # 通知菜单条目
     def _notification_menu_entries(self, ytcfg):
-        print('YoutubeNotificationsIE _notification_menu_entries')
+        print('youtube YoutubeNotificationsIE _notification_menu_entries 通知菜单条目')
         continuation_list = [None]
         response = None
         for page in itertools.count(1):
@@ -7906,7 +7906,7 @@ class YoutubeNotificationsIE(YoutubeTabBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeNotificationsIE _real_extract')
+        print('youtube YoutubeNotificationsIE _real_extract 真实提取')
         display_id = 'notifications'
         ytcfg = self._download_ytcfg('web', display_id) if not self.skip_webpage else {}
         self._report_playlist_authcheck(ytcfg)
@@ -8021,7 +8021,7 @@ class YoutubeSearchURLIE(YoutubeTabBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeSearchURLIE _real_extract')
+        print('youtube YoutubeSearchURLIE _real_extract 真实提取')
         qs = parse_qs(url)
         query = (qs.get('search_query') or qs.get('q'))[0]
         return self.playlist_result(self._search_results(query, qs.get('sp', (None,))[0]), query, query)
@@ -8069,7 +8069,7 @@ class YoutubeMusicSearchURLIE(YoutubeTabBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeMusicSearchURLIE _real_extract')
+        print('youtube YoutubeMusicSearchURLIE _real_extract 真实提取')
         qs = parse_qs(url)
         query = (qs.get('search_query') or qs.get('q'))[0]
         params = qs.get('sp', (None,))[0]
@@ -8099,7 +8099,7 @@ class YoutubeFeedsInfoExtractor(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeFeedsInfoExtractor _real_extract')
+        print('youtube YoutubeFeedsInfoExtractor _real_extract 真实提取')
         return self.url_result(
             f'https://www.youtube.com/feed/{self._FEED_NAME}', ie=YoutubeTabIE.ie_key())
 
@@ -8116,7 +8116,7 @@ class YoutubeWatchLaterIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeWatchLaterIE _real_extract')
+        print('youtube YoutubeWatchLaterIE _real_extract 真实提取')
         return self.url_result(
             'https://www.youtube.com/playlist?list=WL', ie=YoutubeTabIE.ie_key())
 
@@ -8176,7 +8176,7 @@ class YoutubeShortsAudioPivotIE(YoutubeBaseInfoExtractor):
     # 生成音频枢轴参数
     @staticmethod
     def _generate_audio_pivot_params(video_id):
-        print('YoutubeShortsAudioPivotIE _generate_audio_pivot_params')
+        print('youtube YoutubeShortsAudioPivotIE _generate_audio_pivot_params 生成音频枢轴参数')
         """
         Generates sfv_audio_pivot browse params for this video id
         """
@@ -8185,7 +8185,7 @@ class YoutubeShortsAudioPivotIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeShortsAudioPivotIE _real_extract')
+        print('youtube YoutubeShortsAudioPivotIE _real_extract 真实提取')
         video_id = self._match_id(url)
         return self.url_result(
             f'https://www.youtube.com/feed/sfv_audio_pivot?bp={self._generate_audio_pivot_params(video_id)}',
@@ -8234,7 +8234,7 @@ class YoutubeTruncatedURLIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeTruncatedURLIE _real_extract')
+        print('youtube YoutubeTruncatedURLIE _real_extract 真实提取')
         raise ExtractorError(
             'Did you forget to quote the URL? Remember that & is a meta '
             'character in most shells, so you want to put the URL in quotes, '
@@ -8284,7 +8284,7 @@ class YoutubeClipIE(YoutubeTabBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeClipIE _real_extract')
+        print('youtube YoutubeClipIE _real_extract 真实提取')
         clip_id = self._match_id(url)
         _, data = self._extract_webpage(url, clip_id)
 
@@ -8353,7 +8353,7 @@ class YoutubeConsentRedirectIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeConsentRedirectIE _real_extract')
+        print('youtube YoutubeConsentRedirectIE _real_extract 真实提取')
         redirect_url = url_or_none(parse_qs(url).get('continue', [None])[-1])
         if not redirect_url:
             raise ExtractorError('Invalid cookie consent redirect URL', expected=True)
@@ -8373,7 +8373,7 @@ class YoutubeTruncatedIDIE(YoutubeBaseInfoExtractor):
 
     # 真实提取
     def _real_extract(self, url):
-        print('YoutubeTruncatedIDIE _real_extract')
+        print('youtube YoutubeTruncatedIDIE _real_extract 真实提取')
         video_id = self._match_id(url)
         raise ExtractorError(
             f'Incomplete YouTube ID {video_id}. URL {url} looks truncated.',
