@@ -168,6 +168,7 @@ NUMBER_RE = r'\d+(?:\.\d+)?'
 # 获取首选编码
 @functools.cache
 def preferredencoding():
+    print('_utils preferredencoding 获取首选编码')
     """Get preferred encoding.
 
     Returns the best encoding scheme for the system, based on
@@ -183,6 +184,7 @@ def preferredencoding():
 
 # 写入JSON文件
 def write_json_file(obj, fn):
+    print('_utils write_json_file 写入JSON文件')
     """ Encode obj as JSON and write it to fn, atomically if possible """
 
     tf = tempfile.NamedTemporaryFile(
@@ -209,6 +211,7 @@ def write_json_file(obj, fn):
 
 # 部分应用
 def partial_application(func):
+    print('_utils partial_application 部分应用')
     sig = inspect.signature(func)
     required_args = [
         param.name for param in sig.parameters.values()
@@ -226,6 +229,7 @@ def partial_application(func):
 
 # 查找XPath属性
 def find_xpath_attr(node, xpath, key, val=None):
+    print('_utils find_xpath_attr 查找XPath属性')
     """ Find the xpath xpath[@key=val] """
     assert re.match(r'^[a-zA-Z_-]+$', key)
     expr = xpath + (f'[@{key}]' if val is None else f"[@{key}='{val}']")
@@ -236,6 +240,7 @@ def find_xpath_attr(node, xpath, key, val=None):
 
 # 带命名空间的XPath
 def xpath_with_ns(path, ns_map):
+    print('_utils xpath_with_ns 带命名空间的XPath')
     components = [c.split(':') for c in path.split('/')]
     replaced = []
     for c in components:
@@ -248,6 +253,7 @@ def xpath_with_ns(path, ns_map):
 
 # 查找XPath元素
 def xpath_element(node, xpath, name=None, fatal=False, default=NO_DEFAULT):
+    print('_utils xpath_element 查找XPath元素')
     def _find_xpath(xpath):
         return node.find(xpath)
 
@@ -271,6 +277,7 @@ def xpath_element(node, xpath, name=None, fatal=False, default=NO_DEFAULT):
 
 # 查找XPath文本
 def xpath_text(node, xpath, name=None, fatal=False, default=NO_DEFAULT):
+    print('_utils xpath_text 查找XPath文本')
     n = xpath_element(node, xpath, name, fatal=fatal, default=default)
     if n is None or n == default:
         return n
@@ -286,6 +293,7 @@ def xpath_text(node, xpath, name=None, fatal=False, default=NO_DEFAULT):
 
 # 查找XPath属性
 def xpath_attr(node, xpath, key, name=None, fatal=False, default=NO_DEFAULT):
+    print('_utils xpath_attr 查找XPath属性')
     n = find_xpath_attr(node, xpath, key)
     if n is None:
         if default is not NO_DEFAULT:
@@ -299,38 +307,45 @@ def xpath_attr(node, xpath, key, name=None, fatal=False, default=NO_DEFAULT):
 
 # 获取指定ID的元素
 def get_element_by_id(id, html, **kwargs):
+    print('_utils get_element_by_id 获取指定ID的元素')
     """Return the content of the tag with the specified ID in the passed HTML document"""
     return get_element_by_attribute('id', id, html, **kwargs)
 
 # 获取指定ID的元素HTML
 def get_element_html_by_id(id, html, **kwargs):
+    print('_utils get_element_html_by_id 获取指定ID的元素HTML')
     """Return the html of the tag with the specified ID in the passed HTML document"""
     return get_element_html_by_attribute('id', id, html, **kwargs)
 
 # 获取指定类的元素
 def get_element_by_class(class_name, html):
+    print('_utils get_element_by_class 获取指定类的元素')
     """Return the content of the first tag with the specified class in the passed HTML document"""
     retval = get_elements_by_class(class_name, html)
     return retval[0] if retval else None
 
 # 获取指定类的元素HTML
 def get_element_html_by_class(class_name, html):
+    print('_utils get_element_html_by_class 获取指定类的元素HTML')
     """Return the html of the first tag with the specified class in the passed HTML document"""
     retval = get_elements_html_by_class(class_name, html)
     return retval[0] if retval else None
 
 # 获取指定属性的元素
 def get_element_by_attribute(attribute, value, html, **kwargs):
+    print('_utils get_element_by_attribute 获取指定属性的元素')
     retval = get_elements_by_attribute(attribute, value, html, **kwargs)
     return retval[0] if retval else None
 
 # 获取指定属性的元素HTML
 def get_element_html_by_attribute(attribute, value, html, **kargs):
+    print('_utils get_element_html_by_attribute 获取指定属性的元素HTML')
     retval = get_elements_html_by_attribute(attribute, value, html, **kargs)
     return retval[0] if retval else None
 
 # 获取指定类的元素列表
 def get_elements_by_class(class_name, html, **kargs):
+    print('_utils get_elements_by_class 获取指定类的元素列表')
     """Return the content of all tags with the specified class in the passed HTML document as a list"""
     return get_elements_by_attribute(
         'class', rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
@@ -338,6 +353,7 @@ def get_elements_by_class(class_name, html, **kargs):
 
 # 获取指定类的元素列表HTML
 def get_elements_html_by_class(class_name, html):
+    print('_utils get_elements_html_by_class 获取指定类的元素列表HTML')
     """Return the html of all tags with the specified class in the passed HTML document as a list"""
     return get_elements_html_by_attribute(
         'class', rf'[^\'"]*(?<=[\'"\s]){re.escape(class_name)}(?=[\'"\s])[^\'"]*',
@@ -345,16 +361,19 @@ def get_elements_html_by_class(class_name, html):
 
 # 获取指定属性的元素列表
 def get_elements_by_attribute(*args, **kwargs):
+    print('_utils get_elements_by_attribute 获取指定属性的元素列表')
     """Return the content of the tag with the specified attribute in the passed HTML document"""
     return [content for content, _ in get_elements_text_and_html_by_attribute(*args, **kwargs)]
 
 # 获取指定属性的元素列表HTML
 def get_elements_html_by_attribute(*args, **kwargs):
+    print('_utils get_elements_html_by_attribute 获取指定属性的元素列表HTML')
     """Return the html of the tag with the specified attribute in the passed HTML document"""
     return [whole for _, whole in get_elements_text_and_html_by_attribute(*args, **kwargs)]
 
 # 获取指定属性的元素列表文本和HTML
 def get_elements_text_and_html_by_attribute(attribute, value, html, *, tag=r'[\w:.-]+', escape_value=True):
+    print('_utils get_elements_text_and_html_by_attribute 获取指定属性的元素列表文本和HTML')
     """
     Return the text (content) and the html (whole) of the tag with the specified
     attribute in the passed HTML document
@@ -393,18 +412,22 @@ class HTMLBreakOnClosingTagParser(html.parser.HTMLParser):
 
     # 初始化
     def __init__(self):
+        print('_utils HTMLBreakOnClosingTagParser __init__ 初始化')
         self.tagstack = collections.deque()
         html.parser.HTMLParser.__init__(self)
 
     # 进入
     def __enter__(self):
+        print('_utils HTMLBreakOnClosingTagParser __enter__ 进入')
         return self
 
     def __exit__(self, *_):
+        print('_utils HTMLBreakOnClosingTagParser __exit__ 退出')
         self.close()
 
     # 关闭
     def close(self):
+        print('_utils HTMLBreakOnClosingTagParser close 关闭')
         # handle_endtag does not return upon raising HTMLBreakOnClosingTagException,
         # so data remains buffered; we no longer have any interest in it, thus
         # override this method to discard it
@@ -412,10 +435,12 @@ class HTMLBreakOnClosingTagParser(html.parser.HTMLParser):
 
     # 处理开始标签
     def handle_starttag(self, tag, _):
+        print('_utils HTMLBreakOnClosingTagParser handle_starttag 处理开始标签')
         self.tagstack.append(tag)
 
     # 处理结束标签
     def handle_endtag(self, tag):
+        print('_utils HTMLBreakOnClosingTagParser handle_endtag 处理结束标签')
         if not self.tagstack:
             raise compat_HTMLParseError('no tags in the stack')
         while self.tagstack:
@@ -430,6 +455,7 @@ class HTMLBreakOnClosingTagParser(html.parser.HTMLParser):
 # 获取元素文本和HTML
 # XXX: This should be far less strict
 def get_element_text_and_html_by_tag(tag, html):
+    print('_utils get_element_text_and_html_by_tag 获取元素文本和HTML')
     """
     For the first element with the specified tag in the passed HTML document
     return its' content (text) and the whole element (html)
@@ -469,11 +495,13 @@ class HTMLAttributeParser(html.parser.HTMLParser):
 
     # 初始化
     def __init__(self):
+        print('_utils HTMLAttributeParser __init__ 初始化')
         self.attrs = {}
         html.parser.HTMLParser.__init__(self)
 
     # 处理开始标签
     def handle_starttag(self, tag, attrs):
+        print('_utils HTMLAttributeParser handle_starttag 处理开始标签')
         self.attrs = dict(attrs)
         raise compat_HTMLParseError('done')
 
@@ -483,22 +511,26 @@ class HTMLListAttrsParser(html.parser.HTMLParser):
 
     # 初始化
     def __init__(self):
+        print('_utils HTMLListAttrsParser __init__ 初始化')
         html.parser.HTMLParser.__init__(self)
         self.items = []
         self._level = 0
 
     # 处理开始标签
     def handle_starttag(self, tag, attrs):
+        print('_utils HTMLListAttrsParser handle_starttag 处理开始标签')
         if tag == 'li' and self._level == 0:
             self.items.append(dict(attrs))
         self._level += 1
 
     # 处理结束标签
     def handle_endtag(self, tag):
+        print('_utils HTMLListAttrsParser handle_endtag 处理结束标签')
         self._level -= 1
 
 # 提取属性
 def extract_attributes(html_element):
+    print('_utils extract_attributes 提取属性')
     """Given a string for an HTML element such as
     <el
          a="foo" B="bar" c="&98;az" d=boz
@@ -520,6 +552,7 @@ def extract_attributes(html_element):
 
 # 解析列表
 def parse_list(webpage):
+    print('_utils parse_list 解析列表')
     """Given a string for an series of HTML <li> elements,
     return a dictionary of their attributes"""
     parser = HTMLListAttrsParser()
@@ -529,6 +562,7 @@ def parse_list(webpage):
 
 # 清理HTML
 def clean_html(html):
+    print('_utils clean_html 清理HTML')
     """Clean an HTML snippet into a readable string"""
 
     if html is None:  # Convenience for sanitizing descriptions etc.
@@ -547,6 +581,7 @@ def clean_html(html):
 class LenientJSONDecoder(json.JSONDecoder):
     # TODO: Write tests
     def __init__(self, *args, transform_source=None, ignore_extra=False, close_objects=0, **kwargs):
+        print('_utils LenientJSONDecoder __init__ 初始化')
         self.transform_source, self.ignore_extra = transform_source, ignore_extra
         self._close_attempts = 2 * close_objects
         super().__init__(*args, **kwargs)
@@ -554,6 +589,7 @@ class LenientJSONDecoder(json.JSONDecoder):
     # 关闭对象
     @staticmethod
     def _close_object(err):
+        print('_utils LenientJSONDecoder _close_object 关闭对象')
         doc = err.doc[:err.pos]
         # We need to add comma first to get the correct error message
         if err.msg.startswith('Expecting \',\''):
@@ -568,6 +604,7 @@ class LenientJSONDecoder(json.JSONDecoder):
 
     # 解码
     def decode(self, s):
+        print('_utils LenientJSONDecoder decode 解码')
         if self.transform_source:
             s = self.transform_source(s)
         for attempt in range(self._close_attempts + 1):
@@ -587,6 +624,7 @@ class LenientJSONDecoder(json.JSONDecoder):
 
 # 清理打开
 def sanitize_open(filename, open_mode):
+    print('_utils sanitize_open 清理打开')
     """Try to open the given filename, and slightly tweak it if this fails.
 
     Attempts to open the given filename. If this fails, it tries to change
@@ -626,6 +664,7 @@ def sanitize_open(filename, open_mode):
 
 # 时间转换
 def timeconvert(timestr):
+    print('_utils timeconvert 时间转换')
     """Convert RFC 2822 defined time string into system timestamp"""
     timestamp = None
     timetuple = email.utils.parsedate_tz(timestr)
@@ -635,6 +674,7 @@ def timeconvert(timestr):
 
 # 清理文件名
 def sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
+    print('_utils sanitize_filename 清理文件名')
     """Sanitizes a string so it could be used as part of a filename.
     @param restricted   Use a stricter subset of allowed characters
     @param is_id        Whether this is an ID that should be kept unchanged if possible.
@@ -690,6 +730,7 @@ def sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
 
 # 清理路径部分
 def _sanitize_path_parts(parts):
+    print('_utils _sanitize_path_parts 清理路径部分')
     sanitized_parts = []
     for part in parts:
         if not part or part == '.':
@@ -710,6 +751,7 @@ def _sanitize_path_parts(parts):
 
 # 清理路径
 def sanitize_path(s, force=False):
+    print('_utils sanitize_path 清理路径')
     """Sanitizes and normalizes path on Windows"""
     if sys.platform != 'win32':
         if not force:
@@ -740,6 +782,7 @@ def sanitize_path(s, force=False):
 
 # 清理URL
 def sanitize_url(url, *, scheme='http'):
+    print('_utils sanitize_url 清理URL')
     # Prepend protocol-less URLs with `http:` scheme in order to mitigate
     # the number of unwanted failures due to missing protocol
     if url is None:
@@ -760,6 +803,7 @@ def sanitize_url(url, *, scheme='http'):
 
 # 提取基本认证
 def extract_basic_auth(url):
+    print('_utils extract_basic_auth 提取基本认证')
     parts = urllib.parse.urlsplit(url)
     if parts.username is None:
         return url, None
@@ -772,11 +816,13 @@ def extract_basic_auth(url):
 
 # 扩展路径
 def expand_path(s):
+    print('_utils expand_path 扩展路径')
     """Expand shell variables and ~"""
     return os.path.expandvars(compat_expanduser(s))
 
 # 有序集合
 def orderedSet(iterable, *, lazy=False):
+    print('_utils orderedSet 有序集合')
     """Remove all duplicates from the input iterable"""
     def _iter():
         seen = []  # Do not use set since the items can be unhashable
@@ -789,6 +835,7 @@ def orderedSet(iterable, *, lazy=False):
 
 # HTML实体转换
 def _htmlentity_transform(entity_with_semicolon):
+    print('_utils _htmlentity_transform HTML实体转换')
     """Transforms an HTML entity to a character."""
     entity = entity_with_semicolon[:-1]
 
@@ -818,6 +865,7 @@ def _htmlentity_transform(entity_with_semicolon):
 
 # 解码HTML
 def unescapeHTML(s):
+    print('_utils unescapeHTML 解码HTML')
     if s is None:
         return None
     assert isinstance(s, str)
@@ -827,6 +875,7 @@ def unescapeHTML(s):
 
 # 转义HTML
 def escapeHTML(text):
+    print('_utils escapeHTML 转义HTML')
     return (
         text
         .replace('&', '&amp;')
@@ -839,6 +888,7 @@ def escapeHTML(text):
 # netrc内容
 class netrc_from_content(netrc.netrc):
     def __init__(self, content):
+        print('_utils netrc_from_content __init__ 初始化')
         self.hosts, self.macros = {}, {}
         with io.StringIO(content) as stream:
             self._parse('-', stream, False)
@@ -854,6 +904,7 @@ class Popen(subprocess.Popen):
     # 修复PyInstaller问题
     @staticmethod
     def _fix_pyinstaller_issues(env):
+        print('_utils Popen _fix_pyinstaller_issues 修复PyInstaller问题')
         if not hasattr(sys, '_MEIPASS'):
             return
 
@@ -877,6 +928,7 @@ class Popen(subprocess.Popen):
 
     # 初始化
     def __init__(self, args, *remaining, env=None, text=False, shell=False, **kwargs):
+        print('_utils Popen __init__ 初始化')
         if env is None:
             env = os.environ.copy()
         self._fix_pyinstaller_issues(env)
@@ -899,6 +951,7 @@ class Popen(subprocess.Popen):
 
     # 获取comspec
     def __comspec(self):
+        print('_utils Popen __comspec 获取comspec')
         comspec = os.environ.get('ComSpec') or os.path.join(
             os.environ.get('SystemRoot', ''), 'System32', 'cmd.exe')
         if os.path.isabs(comspec):
@@ -907,6 +960,7 @@ class Popen(subprocess.Popen):
 
     # 通信或杀死
     def communicate_or_kill(self, *args, **kwargs):
+        print('_utils Popen communicate_or_kill 通信或杀死')
         try:
             return self.communicate(*args, **kwargs)
         except BaseException:  # Including KeyboardInterrupt
@@ -915,6 +969,7 @@ class Popen(subprocess.Popen):
 
     # 杀死
     def kill(self, *, timeout=0):
+        print('_utils Popen kill 杀死')
         super().kill()
         if timeout != 0:
             self.wait(timeout=timeout)
@@ -922,6 +977,7 @@ class Popen(subprocess.Popen):
     # 运行
     @classmethod
     def run(cls, *args, timeout=None, **kwargs):
+        print('_utils Popen run 运行')
         with cls(*args, **kwargs) as proc:
             default = '' if proc.__text_mode else b''
             stdout, stderr = proc.communicate_or_kill(timeout=timeout)
@@ -929,6 +985,7 @@ class Popen(subprocess.Popen):
 
 # 编码参数
 def encodeArgument(s):
+    print('_utils encodeArgument 编码参数')
     # Legacy code that uses byte strings
     # Uncomment the following line after fixing all post processors
     # assert isinstance(s, str), 'Internal error: %r should be of type %r, is %r' % (s, str, type(s))
@@ -940,6 +997,7 @@ _timetuple = collections.namedtuple('Time', ('hours', 'minutes', 'seconds', 'mil
 
 # 从毫秒获取时间元组
 def timetuple_from_msec(msec):
+    print('_utils timetuple_from_msec 从毫秒获取时间元组')
     secs, msec = divmod(msec, 1000)
     mins, secs = divmod(secs, 60)
     hrs, mins = divmod(mins, 60)
@@ -947,6 +1005,7 @@ def timetuple_from_msec(msec):
 
 # 格式化秒
 def formatSeconds(secs, delim=':', msec=False):
+    print('_utils formatSeconds 格式化秒')
     time = timetuple_from_msec(secs * 1000)
     if time.hours:
         ret = '%d%s%02d%s%02d' % (time.hours, delim, time.minutes, delim, time.seconds)
@@ -958,6 +1017,7 @@ def formatSeconds(secs, delim=':', msec=False):
 
 # 错误报告消息
 def bug_reports_message(before=';'):
+    print('_utils bug_reports_message 错误报告消息')
     from ..update import REPOSITORY
 
     msg = (f'please report this issue on  https://github.com/{REPOSITORY}/issues?q= , '
@@ -975,6 +1035,7 @@ class YoutubeDLError(Exception):
     msg = None
 
     def __init__(self, msg=None):
+        print('_utils YoutubeDLError __init__ 初始化')
         if msg is not None:
             self.msg = msg
         elif self.msg is None:
@@ -986,6 +1047,7 @@ class ExtractorError(YoutubeDLError):
     """Error during info extraction."""
 
     def __init__(self, msg, tb=None, expected=False, cause=None, video_id=None, ie=None):
+        print('_utils ExtractorError __init__ 初始化')
         """ tb, if given, is the original traceback (so that it can be printed out).
         If expected is set, this is a normal error message and most likely not a bug in yt-dlp.
         """
@@ -1015,6 +1077,7 @@ class ExtractorError(YoutubeDLError):
 
     # 格式化跟踪
     def format_traceback(self):
+        print('_utils ExtractorError format_traceback 格式化跟踪')
         return join_nonempty(
             self.traceback and ''.join(traceback.format_tb(self.traceback)),
             self.cause and ''.join(traceback.format_exception(None, self.cause, self.cause.__traceback__)[1:]),
@@ -1022,6 +1085,7 @@ class ExtractorError(YoutubeDLError):
 
     # 设置属性
     def __setattr__(self, name, value):
+        print('_utils ExtractorError __setattr__ 设置属性')
         super().__setattr__(name, value)
         if getattr(self, 'msg', None) and name not in ('msg', 'args'):
             self.msg = self.__msg or type(self).__name__
@@ -1030,6 +1094,7 @@ class ExtractorError(YoutubeDLError):
 # 不支持错误
 class UnsupportedError(ExtractorError):
     def __init__(self, url):
+        print('_utils UnsupportedError __init__ 初始化')
         super().__init__(
             f'Unsupported URL: {url}', expected=True)
         self.url = url
@@ -1048,6 +1113,7 @@ class GeoRestrictedError(ExtractorError):
     """
 
     def __init__(self, msg, countries=None, **kwargs):
+        print('_utils GeoRestrictedError __init__ 初始化')
         kwargs['expected'] = True
         super().__init__(msg, **kwargs)
         self.countries = countries
@@ -1057,6 +1123,7 @@ class UserNotLive(ExtractorError):
     """Error when a channel/user is not live"""
 
     def __init__(self, msg=None, **kwargs):
+        print('_utils UserNotLive __init__ 初始化')
         kwargs['expected'] = True
         super().__init__(msg or 'The channel is not currently live', **kwargs)
 
@@ -1070,6 +1137,7 @@ class DownloadError(YoutubeDLError):
     """
 
     def __init__(self, msg, exc_info=None):
+        print('_utils DownloadError __init__ 初始化')
         """ exc_info, if given, is the original exception that caused the trouble (as returned by sys.exc_info()). """
         super().__init__(msg)
         self.exc_info = exc_info
@@ -1093,6 +1161,7 @@ class SameFileError(YoutubeDLError):
     msg = 'Fixed output name but more than one file to download'
 
     def __init__(self, filename=None):
+        print('_utils SameFileError __init__ 初始化')
         if filename is not None:
             self.msg += f': {filename}'
         super().__init__(self.msg)
@@ -1130,6 +1199,7 @@ class ReExtractInfo(YoutubeDLError):
     """ Video info needs to be re-extracted. """
 
     def __init__(self, msg, expected=False):
+        print('_utils ReExtractInfo __init__ 初始化')
         super().__init__(msg)
         self.expected = expected
 
@@ -1139,6 +1209,7 @@ class ThrottledDownload(ReExtractInfo):
     msg = 'The download speed is below throttle limit'
 
     def __init__(self):
+        print('_utils ThrottledDownload __init__ 初始化')
         super().__init__(self.msg, expected=False)
 
 # 不可用视频错误
@@ -1151,6 +1222,7 @@ class UnavailableVideoError(YoutubeDLError):
     msg = 'Unable to download video'
 
     def __init__(self, err=None):
+        print('_utils UnavailableVideoError __init__ 初始化')
         if err is not None:
             self.msg += f': {err}'
         super().__init__(self.msg)
@@ -1165,6 +1237,7 @@ class ContentTooShortError(YoutubeDLError):
     """
 
     def __init__(self, downloaded, expected):
+        print('_utils ContentTooShortError __init__ 初始化')
         super().__init__(f'Downloaded {downloaded} bytes, expected {expected} bytes')
         # Both in bytes
         self.downloaded = downloaded
@@ -1173,6 +1246,7 @@ class ContentTooShortError(YoutubeDLError):
 # XAttrMetadataError
 class XAttrMetadataError(YoutubeDLError):
     def __init__(self, code=None, msg='Unknown error'):
+        print('_utils XAttrMetadataError __init__ 初始化')
         super().__init__(msg)
         self.code = code
         self.msg = msg
@@ -1192,10 +1266,12 @@ class XAttrUnavailableError(YoutubeDLError):
 
 # 路径类似
 def is_path_like(f):
+    print('_utils is_path_like 路径类似')
     return isinstance(f, (str, bytes, os.PathLike))
 
 # 提取时区
 def extract_timezone(date_str, default=None):
+    print('_utils extract_timezone 提取时区')
     m = re.search(
         r'''(?x)
             ^.{8,}?                                              # >=8 char non-TZ prefix, if present
@@ -1231,6 +1307,7 @@ def extract_timezone(date_str, default=None):
 # 解析ISO 8601
 @partial_application
 def parse_iso8601(date_str, delimiter='T', timezone=None):
+    print('_utils parse_iso8601 解析ISO 8601')
     """ Return a UNIX timestamp from the given date """
 
     if date_str is None:
@@ -1247,10 +1324,12 @@ def parse_iso8601(date_str, delimiter='T', timezone=None):
 
 # 日期格式
 def date_formats(day_first=True):
+    print('_utils date_formats 日期格式')
     return DATE_FORMATS_DAY_FIRST if day_first else DATE_FORMATS_MONTH_FIRST
 
 # 统一字符串日期
 def unified_strdate(date_str, day_first=True):
+    print('_utils unified_strdate 统一字符串日期')
     """Return a string with the date in the format YYYYMMDD"""
 
     if date_str is None:
@@ -1275,6 +1354,7 @@ def unified_strdate(date_str, day_first=True):
 
 # 统一时间戳
 def unified_timestamp(date_str, day_first=True):
+    print('_utils unified_timestamp 统一时间戳')
     if not isinstance(date_str, str):
         return None
 
@@ -1309,6 +1389,7 @@ def unified_timestamp(date_str, day_first=True):
 # 确定扩展名
 @partial_application
 def determine_ext(url, default_ext='unknown_video'):
+    print('_utils determine_ext 确定扩展名')
     if url is None or '.' not in url:
         return default_ext
     guess = url.partition('?')[0].rpartition('.')[2]
@@ -1322,10 +1403,12 @@ def determine_ext(url, default_ext='unknown_video'):
 
 # 字幕文件名
 def subtitles_filename(filename, sub_lang, sub_format, expected_real_ext=None):
+    print('_utils subtitles_filename 字幕文件名')
     return replace_extension(filename, sub_lang + '.' + sub_format, expected_real_ext)
 
 # 从字符串中返回日期时间对象
 def datetime_from_str(date_str, precision='auto', format='%Y%m%d'):
+    print('_utils datetime_from_str 从字符串中返回日期时间对象')
     R"""
     Return a datetime object from a string.
     Supported format:
@@ -1368,6 +1451,7 @@ def datetime_from_str(date_str, precision='auto', format='%Y%m%d'):
 
 # 从字符串中返回日期对象
 def date_from_str(date_str, format='%Y%m%d', strict=False):
+    print('_utils date_from_str 从字符串中返回日期对象')
     R"""
     Return a date object from a string using datetime_from_str
 
@@ -1380,6 +1464,7 @@ def date_from_str(date_str, format='%Y%m%d', strict=False):
 
 # 添加月份
 def datetime_add_months(dt_, months):
+    print('_utils datetime_add_months 添加月份')
     """Increment/Decrement a datetime object by months."""
     month = dt_.month + months - 1
     year = dt_.year + month // 12
@@ -1389,6 +1474,7 @@ def datetime_add_months(dt_, months):
 
 # 日期时间舍入
 def datetime_round(dt_, precision='day'):
+    print('_utils datetime_round 日期时间舍入')
     """
     Round a datetime object's time to a specific precision
     """
@@ -1407,6 +1493,7 @@ def datetime_round(dt_, precision='day'):
 
 # 日期时间连接
 def hyphenate_date(date_str):
+    print('_utils hyphenate_date 日期时间连接')
     """
     Convert a date in 'YYYYMMDD' format to 'YYYY-MM-DD' format"""
     match = re.match(r'^(\d\d\d\d)(\d\d)(\d\d)$', date_str)
@@ -1420,6 +1507,7 @@ class DateRange:
     """Represents a time interval between two dates"""
 
     def __init__(self, start=None, end=None):
+        print('_utils DateRange __init__ 初始化')
         """start and end must be strings in the format accepted by date"""
         if start is not None:
             self.start = date_from_str(start, strict=True)
@@ -1434,11 +1522,13 @@ class DateRange:
 
     @classmethod
     def day(cls, day):
+        print('_utils DateRange day 日期范围')
         """Returns a range that only contains the given day"""
         return cls(day, day)
 
     # 包含
     def __contains__(self, date):
+        print('_utils DateRange __contains__ 包含')
         """Check if the date is in the range"""
         if not isinstance(date, dt.date):
             date = date_from_str(date)
@@ -1446,20 +1536,24 @@ class DateRange:
 
     # 表示
     def __repr__(self):
+        print('_utils DateRange __repr__ 表示')
         return f'{__name__}.{type(self).__name__}({self.start.isoformat()!r}, {self.end.isoformat()!r})'
 
     # 字符串表示
     def __str__(self):
+        print('_utils DateRange __str__ 字符串表示')
         return f'{self.start} to {self.end}'
 
     # 相等
     def __eq__(self, other):
+        print('_utils DateRange __eq__ 相等')
         return (isinstance(other, DateRange)
                 and self.start == other.start and self.end == other.end)
 
 # 系统标识
 @functools.cache
 def system_identifier():
+    print('_utils system_identifier 系统标识')
     python_implementation = platform.python_implementation()
     if python_implementation == 'PyPy' and hasattr(sys, 'pypy_version_info'):
         python_implementation += ' version %d.%d.%d' % sys.pypy_version_info[:3]
@@ -1480,6 +1574,7 @@ def system_identifier():
 # 获取Windows版本
 @functools.cache
 def get_windows_version():
+    print('_utils get_windows_version 获取Windows版本')
     """ Get Windows version. returns () if it's not running on Windows """
     if os.name == 'nt':
         return version_tuple(platform.win32_ver()[1])
@@ -1488,6 +1583,7 @@ def get_windows_version():
 
 # 写入字符串
 def write_string(s, out=None, encoding=None):
+    print('_utils write_string 写入字符串')
     assert isinstance(s, str)
     out = out or sys.stderr
     # `sys.stderr` might be `None` (Ref: https://github.com/pyinstaller/pyinstaller/pull/7217)
@@ -1511,6 +1607,7 @@ def write_string(s, out=None, encoding=None):
 # 弃用警告
 # TODO: Use global logger
 def deprecation_warning(msg, *, printer=None, stacklevel=0, **kwargs):
+    print('_utils deprecation_warning 弃用警告')
     from .. import _IN_CLI
     if _IN_CLI:
         if msg in deprecation_warning._cache:
@@ -1531,6 +1628,7 @@ class LockingUnsupportedError(OSError):
     msg = 'File locking is not supported'
 
     def __init__(self):
+        print('_utils LockingUnsupportedError __init__ 初始化')
         super().__init__(self.msg)
 
 # 跨平台文件锁定
@@ -1627,6 +1725,7 @@ class locked_file:
     locked = False
 
     def __init__(self, filename, mode, block=True, encoding=None):
+        print('_utils locked_file __init__ 初始化')
         if mode not in {'r', 'rb', 'a', 'ab', 'w', 'wb'}:
             raise NotImplementedError(mode)
         self.mode, self.block = mode, block
@@ -1647,6 +1746,7 @@ class locked_file:
 
     # 进入
     def __enter__(self):
+        print('_utils locked_file __enter__ 进入')
         exclusive = 'r' not in self.mode
         try:
             _lock_file(self.f, exclusive, self.block)
@@ -1667,6 +1767,7 @@ class locked_file:
 
     # 解锁
     def unlock(self):
+        print('_utils locked_file unlock 解锁')
         if not self.locked:
             return
         try:
@@ -1676,6 +1777,7 @@ class locked_file:
 
     # 退出
     def __exit__(self, *_):
+        print('_utils locked_file __exit__ 退出')
         try:
             self.unlock()
         finally:
@@ -1688,15 +1790,18 @@ class locked_file:
 
     # 获取属性
     def __getattr__(self, attr):
+        print('_utils locked_file __getattr__ 获取属性')
         return getattr(self.f, attr)
 
     # 迭代
     def __iter__(self):
+        print('_utils locked_file __iter__ 迭代')
         return iter(self.f)
 
 # 获取文件系统编码
 @functools.cache
 def get_filesystem_encoding():
+    print('_utils get_filesystem_encoding 获取文件系统编码')
     encoding = sys.getfilesystemencoding()
     return encoding if encoding is not None else 'utf-8'
 
@@ -1716,6 +1821,7 @@ _CMD_QUOTE_TRANS = str.maketrans({
 
 # 壳牌引用
 def shell_quote(args, *, shell=False):
+    print('_utils shell_quote 壳牌引用')
     args = list(variadic(args))
 
     if os.name != 'nt':
@@ -1729,6 +1835,7 @@ def shell_quote(args, *, shell=False):
 
 # 烟雾URL
 def smuggle_url(url, data):
+    print('_utils smuggle_url 烟雾URL')
     """ Pass additional data in a URL for internal use. """
 
     url, idata = unsmuggle_url(url, {})
@@ -1740,6 +1847,7 @@ def smuggle_url(url, data):
 # 解烟雾URL
 # unsmuggle_url方法的主要功能是从一个可能包含额外数据的URL中提取出原始URL和附加数据。这个方法通常用于从URL中提取出内部使用的数据，这些数据通常是以特殊的方式编码在URL的片段部分
 def unsmuggle_url(smug_url, default=None):
+    print('_utils unsmuggle_url 解烟雾URL')
     if '#__youtubedl_smuggle' not in smug_url:
         return smug_url, default
     url, _, sdata = smug_url.rpartition('#')
@@ -1749,6 +1857,7 @@ def unsmuggle_url(smug_url, default=None):
 
 # 格式化小数后缀
 def format_decimal_suffix(num, fmt='%d%s', *, factor=1000):
+    print('_utils format_decimal_suffix 格式化小数后缀')
     """ Formats numbers with decimal sufixes like K, M, etc """
     num, factor = float_or_none(num), float(factor)
     if num is None or num < 0:
@@ -1763,10 +1872,12 @@ def format_decimal_suffix(num, fmt='%d%s', *, factor=1000):
 
 # 格式化字节
 def format_bytes(bytes):
+    print('_utils format_bytes 格式化字节')
     return format_decimal_suffix(bytes, '%.2f%sB', factor=1024) or 'N/A'
 
 # 查找单位表
 def lookup_unit_table(unit_table, s, strict=False):
+    print('_utils lookup_unit_table 查找单位表')
     num_re = NUMBER_RE if strict else NUMBER_RE.replace(R'\.', '[,.]')
     units_re = '|'.join(re.escape(u) for u in unit_table)
     m = (re.fullmatch if strict else re.match)(
@@ -1780,6 +1891,7 @@ def lookup_unit_table(unit_table, s, strict=False):
 
 # 解析字节
 def parse_bytes(s):
+    print('_utils parse_bytes 解析字节')
     """Parse a string indicating a byte quantity into an integer"""
     return lookup_unit_table(
         {u: 1024**i for i, u in enumerate(['', *'KMGTPEZY'])},
@@ -1787,6 +1899,7 @@ def parse_bytes(s):
 
 # 解析文件大小
 def parse_filesize(s):
+    print('_utils parse_filesize 解析文件大小')
     if s is None:
         return None
 
@@ -1858,6 +1971,7 @@ def parse_filesize(s):
 
 # 解析计数
 def parse_count(s):
+    print('_utils parse_count 解析计数')
     if s is None:
         return None
 
@@ -1887,6 +2001,7 @@ def parse_count(s):
 
 # 解析分辨率
 def parse_resolution(s, *, lenient=False):
+    print('_utils parse_resolution 解析分辨率')
     if s is None:
         return {}
 
@@ -1912,6 +2027,7 @@ def parse_resolution(s, *, lenient=False):
 
 # 解析比特率
 def parse_bitrate(s):
+    print('_utils parse_bitrate 解析比特率')
     if not isinstance(s, str):
         return
     mobj = re.search(r'\b(\d+)\s*kbps', s)
@@ -1920,6 +2036,7 @@ def parse_bitrate(s):
 
 # 按名称解析月份
 def month_by_name(name, lang='en'):
+    print('_utils month_by_name 按名称解析月份')
     """ Return the number of a month by (locale-independently) English name """
 
     month_names = MONTH_NAMES.get(lang, MONTH_NAMES['en'])
@@ -1931,6 +2048,7 @@ def month_by_name(name, lang='en'):
 
 # 按缩写解析月份
 def month_by_abbreviation(abbrev):
+    print('_utils month_by_abbreviation 按缩写解析月份')
     """ Return the number of a month by (locale-independently) English
         abbreviations """
 
@@ -1941,6 +2059,7 @@ def month_by_abbreviation(abbrev):
 
 # 修复XML的&符号
 def fix_xml_ampersands(xml_str):
+    print('_utils fix_xml_ampersands 修复XML的&符号')
     """Replace all the '&' by '&amp;' in XML"""
     return re.sub(
         r'&(?!amp;|lt;|gt;|apos;|quot;|#x[0-9a-fA-F]{,4};|#[0-9]{,4};)',
@@ -1949,6 +2068,7 @@ def fix_xml_ampersands(xml_str):
 
 # 设置进程标题
 def setproctitle(title):
+    print('_utils setproctitle 设置进程标题')
     assert isinstance(title, str)
 
     # Workaround for https://github.com/yt-dlp/yt-dlp/issues/4541
@@ -1977,14 +2097,17 @@ def setproctitle(title):
 
 # 移除开始
 def remove_start(s, start):
+    print('_utils remove_start 移除开始')
     return s[len(start):] if s is not None and s.startswith(start) else s
 
 # 移除结束
 def remove_end(s, end):
+    print('_utils remove_end 移除结束')
     return s[:-len(end)] if s is not None and end and s.endswith(end) else s
 
 # 移除引号
 def remove_quotes(s):
+    print('_utils remove_quotes 移除引号')
     if s is None or len(s) < 2:
         return s
     for quote in ('"', "'"):
@@ -1994,6 +2117,7 @@ def remove_quotes(s):
 
 # 获取域名
 def get_domain(url):
+    print('_utils get_domain 获取域名')
     """
     This implementation is inconsistent, but is kept for compatibility.
     Use this only for "webpage_url_domain"
@@ -2002,16 +2126,19 @@ def get_domain(url):
 
 # 获取URL基础名称
 def url_basename(url):
+    print('_utils url_basename 获取URL基础名称')
     path = urllib.parse.urlparse(url).path
     return path.strip('/').split('/')[-1]
 
 # 获取URL基础
 def base_url(url):
+    print('_utils base_url 获取URL基础')
     return re.match(r'https?://[^?#]+/', url).group()
 
 # 获取URL基础
 @partial_application
 def urljoin(base, path):
+    print('_utils urljoin 获取URL基础')
     if isinstance(path, bytes):
         path = path.decode()
     if not isinstance(path, str) or not path:
@@ -2028,6 +2155,7 @@ def urljoin(base, path):
 # 整数或None
 @partial_application
 def int_or_none(v, scale=1, default=None, get_attr=None, invscale=1, base=None):
+    print('_utils int_or_none 整数或None')
     if get_attr and v is not None:
         v = getattr(v, get_attr, None)
     if invscale == 1 and scale < 1:
@@ -2040,10 +2168,12 @@ def int_or_none(v, scale=1, default=None, get_attr=None, invscale=1, base=None):
 
 # 字符串或None
 def str_or_none(v, default=None):
+    print('_utils str_or_none 字符串或None')
     return default if v is None else str(v)
 
 # 字符串转整数
 def str_to_int(int_str):
+    print('_utils str_to_int 字符串转整数')
     """ A more relaxed version of int_or_none """
     if isinstance(int_str, int):
         return int_str
@@ -2054,6 +2184,7 @@ def str_to_int(int_str):
 # 浮点数或None
 @partial_application
 def float_or_none(v, scale=1, invscale=1, default=None):
+    print('_utils float_or_none 浮点数或None')
     if v is None:
         return default
     if invscale == 1 and scale < 1:
@@ -2066,14 +2197,17 @@ def float_or_none(v, scale=1, invscale=1, default=None):
 
 # 布尔或None
 def bool_or_none(v, default=None):
+    print('_utils bool_or_none 布尔或None')
     return v if isinstance(v, bool) else default
 
 # 字符串或None
 def strip_or_none(v, default=None):
+    print('_utils strip_or_none 字符串或None')
     return v.strip() if isinstance(v, str) else default
 
 # URL或None
 def url_or_none(url):
+    print('_utils url_or_none URL或None')
     if not url or not isinstance(url, str):
         return None
     url = url.strip()
@@ -2081,6 +2215,7 @@ def url_or_none(url):
 
 # 字符串格式化或None
 def strftime_or_none(timestamp, date_format='%Y%m%d', default=None):
+    print('_utils strftime_or_none 字符串格式化或None')
     datetime_object = None
     try:
         if isinstance(timestamp, (int, float)):  # unix timestamp
@@ -2100,6 +2235,7 @@ def strftime_or_none(timestamp, date_format='%Y%m%d', default=None):
 
 # 解析时长
 def parse_duration(s):
+    print('_utils parse_duration 解析时长')
     if not isinstance(s, str):
         return None
     s = s.strip()
@@ -2156,6 +2292,7 @@ def parse_duration(s):
 
 # 更改扩展名
 def _change_extension(prepend, filename, ext, expected_real_ext=None):
+    print('_utils _change_extension 更改扩展名')
     name, real_ext = os.path.splitext(filename)
 
     if not expected_real_ext or real_ext[1:] == expected_real_ext:
@@ -2172,6 +2309,7 @@ replace_extension = functools.partial(_change_extension, False)
 
 # 检查可执行文件
 def check_executable(exe, args=[]):
+    print('_utils check_executable 检查可执行文件')
     """ Checks if the given binary is installed somewhere in PATH, and returns its name.
     args can be a list of arguments for a short output (like -version) """
     try:
@@ -2182,6 +2320,7 @@ def check_executable(exe, args=[]):
 
 # 获取可执行版本输出
 def _get_exe_version_output(exe, args):
+    print('_utils _get_exe_version_output 获取可执行版本输出')
     try:
         # STDIN should be redirected too. On UNIX-like systems, ffmpeg triggers
         # SIGTTOU if yt-dlp is run in the background.
@@ -2196,6 +2335,7 @@ def _get_exe_version_output(exe, args):
 
 # 检测可执行版本
 def detect_exe_version(output, version_re=None, unrecognized='present'):
+    print('_utils detect_exe_version 检测可执行版本')
     assert isinstance(output, str)
     if version_re is None:
         version_re = r'version\s+([-0-9._a-zA-Z]+)'
@@ -2208,6 +2348,7 @@ def detect_exe_version(output, version_re=None, unrecognized='present'):
 # 获取可执行版本
 def get_exe_version(exe, args=['--version'],
                     version_re=None, unrecognized=('present', 'broken')):
+    print('_utils get_exe_version 获取可执行版本')
     """ Returns the version of the specified executable,
     or False if the executable is not present """
     unrecognized = variadic(unrecognized)
@@ -2219,6 +2360,7 @@ def get_exe_version(exe, args=['--version'],
 
 # 浮点范围
 def frange(start=0, stop=None, step=1):
+    print('_utils frange 浮点范围')
     """Float range"""
     if stop is None:
         start, stop = 0, start
@@ -2236,12 +2378,14 @@ class LazyList(collections.abc.Sequence):
         pass
 
     def __init__(self, iterable, *, reverse=False, _cache=None):
+        print('_utils LazyList __init__ 初始化')
         self._iterable = iter(iterable)
         self._cache = [] if _cache is None else _cache
         self._reversed = reverse
 
     # 迭代
     def __iter__(self):
+        print('_utils LazyList __iter__ 迭代')
         if self._reversed:
             # We need to consume the entire iterable to iterate in reverse
             yield from self.exhaust()
@@ -2253,22 +2397,26 @@ class LazyList(collections.abc.Sequence):
 
     # 耗尽
     def _exhaust(self):
+        print('_utils LazyList _exhaust 耗尽')
         self._cache.extend(self._iterable)
         self._iterable = []  # Discard the emptied iterable to make it pickle-able
         return self._cache
 
     # 耗尽
     def exhaust(self):
+        print('_utils LazyList exhaust 耗尽')
         """Evaluate the entire iterable"""
         return self._exhaust()[::-1 if self._reversed else 1]
 
     # 反转索引
     @staticmethod
     def _reverse_index(x):
+        print('_utils LazyList _reverse_index 反转索引')
         return None if x is None else ~x
 
     # 获取索引
     def __getitem__(self, idx):
+        print('_utils LazyList __getitem__ 获取索引')
         if isinstance(idx, slice):
             if self._reversed:
                 idx = slice(self._reverse_index(idx.start), self._reverse_index(idx.stop), -(idx.step or 1))
@@ -2298,6 +2446,7 @@ class LazyList(collections.abc.Sequence):
             raise self.IndexError(e) from e
     # 布尔
     def __bool__(self):
+        print('_utils LazyList __bool__ 布尔')
         try:
             self[-1] if self._reversed else self[0]
         except self.IndexError:
@@ -2306,23 +2455,28 @@ class LazyList(collections.abc.Sequence):
 
     # 长度
     def __len__(self):
+        print('_utils LazyList __len__ 长度')
         self._exhaust()
         return len(self._cache)
 
     # 反转
     def __reversed__(self):
+        print('_utils LazyList __reversed__ 反转')
         return type(self)(self._iterable, reverse=not self._reversed, _cache=self._cache)
 
     def __copy__(self):
+        print('_utils LazyList __copy__ 复制')
         return type(self)(self._iterable, reverse=self._reversed, _cache=self._cache)
 
     # 表示
     def __repr__(self):
+        print('_utils LazyList __repr__ 表示')
         # repr and str should mimic a list. So we exhaust the iterable
         return repr(self.exhaust())
 
     # 字符串表示
     def __str__(self):
+        print('_utils LazyList __str__ 字符串表示')
         return repr(self.exhaust())
 
 
@@ -2333,10 +2487,12 @@ class PagedList:
         pass
     # 长度
     def __len__(self):
+        print('_utils PagedList __len__ 长度')
         # This is only useful for tests
         return len(self.getslice())
     # 初始化
     def __init__(self, pagefunc, pagesize, use_cache=True):
+        print('_utils PagedList __init__ 初始化')
         self._pagefunc = pagefunc
         self._pagesize = pagesize
         self._pagecount = float('inf')
@@ -2344,6 +2500,7 @@ class PagedList:
         self._cache = {}
     # 获取页面
     def getpage(self, pagenum):
+        print('_utils PagedList getpage 获取页面')
         page_results = self._cache.get(pagenum)
         if page_results is None:
             page_results = [] if pagenum > self._pagecount else list(self._pagefunc(pagenum))
@@ -2352,12 +2509,15 @@ class PagedList:
         return page_results
     # 获取切片
     def getslice(self, start=0, end=None):
+        print('_utils PagedList getslice 获取切片')
         return list(self._getslice(start, end))
     # 获取切片
     def _getslice(self, start, end):
+        print('_utils PagedList _getslice 获取切片')
         raise NotImplementedError('This method must be implemented by subclasses')
     # 获取索引
     def __getitem__(self, idx):
+        print('_utils PagedList __getitem__ 获取索引')
         assert self._use_cache, 'Indexing PagedList requires cache'
         if not isinstance(idx, int) or idx < 0:
             raise TypeError('indices must be non-negative integers')
@@ -2367,6 +2527,7 @@ class PagedList:
         return entries[0]
 
     def __bool__(self):
+        print('_utils PagedList __bool__ 布尔')
         return bool(self.getslice(0, 1))
 
 # 按需分页列表
@@ -2374,6 +2535,7 @@ class OnDemandPagedList(PagedList):
     """Download pages until a page with less than maximum results"""
     # 获取切片
     def _getslice(self, start, end):
+        print('_utils OnDemandPagedList _getslice 获取切片')
         for pagenum in itertools.count(start // self._pagesize):
             firstid = pagenum * self._pagesize
             nextfirstid = pagenum * self._pagesize + self._pagesize
@@ -2415,10 +2577,12 @@ class InAdvancePagedList(PagedList):
     """PagedList with total number of pages known in advance"""
     # 初始化
     def __init__(self, pagefunc, pagecount, pagesize):
+        print('_utils InAdvancePagedList __init__ 初始化')
         PagedList.__init__(self, pagefunc, pagesize, True)
         self._pagecount = pagecount
     # 获取切片
     def _getslice(self, start, end):
+        print('_utils InAdvancePagedList _getslice 获取切片')
         start_page = start // self._pagesize
         end_page = self._pagecount if end is None else min(self._pagecount, end // self._pagesize + 1)
         skip_elems = start - start_page * self._pagesize
@@ -2442,6 +2606,7 @@ class PlaylistEntries:
     is_exhausted = False
     # 初始化
     def __init__(self, ydl, info_dict):
+        print('_utils PlaylistEntries __init__ 初始化')
         self.ydl = ydl
 
         # _entries must be assigned now since infodict can change during iteration
@@ -2472,6 +2637,7 @@ class PlaylistEntries:
     # 解析播放列表条目
     @classmethod
     def parse_playlist_items(cls, string):
+        print('_utils PlaylistEntries parse_playlist_items 解析播放列表条目')
         for segment in string.split(','):
             if not segment:
                 raise ValueError('There is two or more consecutive commas')
@@ -2484,6 +2650,7 @@ class PlaylistEntries:
             yield slice(int_or_none(start), float_or_none(end), int_or_none(step)) if has_range else int(start)
     # 获取请求的条目
     def get_requested_items(self):
+        print('_utils PlaylistEntries get_requested_items 获取请求的条目')
         playlist_items = self.ydl.params.get('playlist_items')
         playlist_start = self.ydl.params.get('playliststart', 1)
         playlist_end = self.ydl.params.get('playlistend')
@@ -2509,6 +2676,7 @@ class PlaylistEntries:
                     return
     # 获取完整计数
     def get_full_count(self):
+        print('_utils PlaylistEntries get_full_count 获取完整计数')
         if self.is_exhausted and not self.is_incomplete:
             return len(self)
         elif isinstance(self._entries, InAdvancePagedList):
@@ -2517,6 +2685,7 @@ class PlaylistEntries:
     # 获取条目
     @functools.cached_property
     def _getter(self):
+        print('_utils PlaylistEntries _getter 获取条目')
         if isinstance(self._entries, list):
             def get_entry(i):
                 try:
@@ -2537,6 +2706,7 @@ class PlaylistEntries:
         return get_entry
     # 获取条目
     def __getitem__(self, idx):
+        print('_utils PlaylistEntries __getitem__ 获取条目')
         if isinstance(idx, int):
             idx = slice(idx, idx)
 
@@ -2567,6 +2737,7 @@ class PlaylistEntries:
             yield i + 1, entry
     # 长度
     def __len__(self):
+        print('_utils PlaylistEntries __len__ 长度')
         return len(tuple(self[:]))
     # 索引错误
     class IndexError(IndexError):  # noqa: A001
@@ -2574,6 +2745,7 @@ class PlaylistEntries:
 
 
 def uppercase_escape(s):
+    print('_utils uppercase_escape 大写转义')
     unicode_escape = codecs.getdecoder('unicode_escape')
     return re.sub(
         r'\\U[0-9a-fA-F]{8}',
@@ -2582,6 +2754,7 @@ def uppercase_escape(s):
 
 # 小写转义
 def lowercase_escape(s):
+    print('_utils lowercase_escape 小写转义')
     unicode_escape = codecs.getdecoder('unicode_escape')
     return re.sub(
         r'\\u[0-9a-fA-F]{4}',
@@ -2590,10 +2763,12 @@ def lowercase_escape(s):
 
 # 解析查询字符串
 def parse_qs(url, **kwargs):
+    print('_utils parse_qs 解析查询字符串')
     return urllib.parse.parse_qs(urllib.parse.urlparse(url).query, **kwargs)
 
 # 读取批量URL
 def read_batch_urls(batch_fd):
+    print('_utils read_batch_urls 读取批量URL')
     def fixup(url):
         if not isinstance(url, str):
             url = url.decode('utf-8', 'replace')
@@ -2613,11 +2788,13 @@ def read_batch_urls(batch_fd):
 
 # 编码POST数据
 def urlencode_postdata(*args, **kargs):
+    print('_utils urlencode_postdata 编码POST数据')
     return urllib.parse.urlencode(*args, **kargs).encode('ascii')
 
 # 更新URL
 @partial_application
 def update_url(url, *, query_update=None, **kwargs):
+    print('_utils update_url 更新URL')
     """Replace URL components specified by kwargs
        @param url           str or parse url tuple
        @param query_update  update query
@@ -2639,10 +2816,12 @@ def update_url(url, *, query_update=None, **kwargs):
 # 更新URL查询
 @partial_application
 def update_url_query(url, query):
+    print('_utils update_url_query 更新URL查询')
     return update_url(url, query_update=query)
 
 # 多部分编码
 def _multipart_encode_impl(data, boundary):
+    print('_utils _multipart_encode_impl 多部分编码')
     content_type = f'multipart/form-data; boundary={boundary}'
 
     out = b''
@@ -2665,6 +2844,7 @@ def _multipart_encode_impl(data, boundary):
 
 # 多部分编码
 def multipart_encode(data, boundary=None):
+    print('_utils multipart_encode 多部分编码')
     """
     Encode a dict to RFC 7578-compliant form-data
 
@@ -2695,12 +2875,14 @@ def multipart_encode(data, boundary=None):
 
 # 可迭代类型
 def is_iterable_like(x, allowed_types=collections.abc.Iterable, blocked_types=NO_DEFAULT):
+    print('_utils is_iterable_like 可迭代类型')
     if blocked_types is NO_DEFAULT:
         blocked_types = (str, bytes, collections.abc.Mapping)
     return isinstance(x, allowed_types) and not isinstance(x, blocked_types)
 
 # 可变参数
 def variadic(x, allowed_types=NO_DEFAULT):
+    print('_utils variadic 可变参数')
     if not isinstance(allowed_types, (tuple, type)):
         deprecation_warning('allowed_types should be a tuple or a type')
         allowed_types = tuple(allowed_types)
@@ -2708,6 +2890,7 @@ def variadic(x, allowed_types=NO_DEFAULT):
 
 # 尝试调用
 def try_call(*funcs, expected_type=None, args=[], kwargs={}):
+    print('_utils try_call 尝试调用')
     for f in funcs:
         try:
             val = f(*args, **kwargs)
@@ -2719,14 +2902,17 @@ def try_call(*funcs, expected_type=None, args=[], kwargs={}):
 
 # 尝试获取
 def try_get(src, getter, expected_type=None):
+    print('_utils try_get 尝试获取')
     return try_call(*variadic(getter), args=(src,), expected_type=expected_type)
 
 # 过滤字典
 def filter_dict(dct, cndn=lambda _, v: v is not None):
+    print('_utils filter_dict 过滤字典')
     return {k: v for k, v in dct.items() if cndn(k, v)}
 
 # 合并字典
 def merge_dicts(*dicts):
+    print('_utils merge_dicts 合并字典')
     merged = {}
     for a_dict in dicts:
         for k, v in a_dict.items():
@@ -2737,6 +2923,7 @@ def merge_dicts(*dicts):
 
 # 编码兼容字符串
 def encode_compat_str(string, encoding=preferredencoding(), errors='strict'):
+    print('_utils encode_compat_str 编码兼容字符串')
     return string if isinstance(string, str) else str(string, encoding, errors)
 
 # 美国评级
@@ -2760,6 +2947,7 @@ TV_PARENTAL_GUIDELINES = {
 
 # 解析年龄限制
 def parse_age_limit(s):
+    print('_utils parse_age_limit 解析年龄限制')
     # isinstance(False, int) is True. So type() must be used instead
     if type(s) is int:  # noqa: E721
         return s if 0 <= s <= 21 else None
@@ -2778,6 +2966,7 @@ def parse_age_limit(s):
 
 # 剥离JSONP
 def strip_jsonp(code):
+    print('_utils strip_jsonp 剥离JSONP')
     return re.sub(
         r'''(?sx)^
             (?:window\.)?(?P<func_name>[a-zA-Z0-9_.$]*)
@@ -2788,6 +2977,7 @@ def strip_jsonp(code):
 
 # 将JS转换为JSON
 def js_to_json(code, vars={}, *, strict=False):
+    print('_utils js_to_json 将JS转换为JSON')
     # vars is a dict of var, val pairs to substitute
     STRING_QUOTES = '\'"`'
     STRING_RE = '|'.join(rf'{q}(?:\\.|[^\\{q}])*{q}' for q in STRING_QUOTES)
@@ -2869,6 +3059,7 @@ def js_to_json(code, vars={}, *, strict=False):
 
 # 质量
 def qualities(quality_ids):
+    print('_utils qualities 质量')
     """ Get a numeric quality value out of a list of possible values """
     def q(qid):
         try:
@@ -2922,6 +3113,7 @@ STR_FORMAT_TYPES = 'diouxXeEfFgGcrsa'
 
 # 限制长度
 def limit_length(s, length):
+    print('_utils limit_length 限制长度')
     """ Add ellipses to overly long strings """
     if s is None:
         return None
@@ -2932,10 +3124,12 @@ def limit_length(s, length):
 
 # 版本元组
 def version_tuple(v):
+    print('_utils version_tuple 版本元组')
     return tuple(int(e) for e in re.split(r'[-.]', v))
 
 # 是否过时版本
 def is_outdated_version(version, limit, assume_new=True):
+    print('_utils is_outdated_version 是否过时版本')
     if not version:
         return not assume_new
     try:
@@ -2945,6 +3139,7 @@ def is_outdated_version(version, limit, assume_new=True):
 
 # 是否可更新
 def ytdl_is_updateable():
+    print('_utils ytdl_is_updateable 是否可更新')
     """ Returns if yt-dlp can be updated with -U """
 
     from ..update import is_non_updateable
@@ -2953,16 +3148,19 @@ def ytdl_is_updateable():
 
 # 将参数转换为字符串
 def args_to_str(args):
+    print('_utils args_to_str 将参数转换为字符串')
     # Get a short string representation for a subprocess command
     return shell_quote(args)
 
 # 将错误转换为字符串
 def error_to_str(err):
+    print('_utils error_to_str 将错误转换为字符串')
     return f'{type(err).__name__}: {err}'
 
 # 将MIME类型转换为扩展名
 @partial_application
 def mimetype2ext(mt, default=NO_DEFAULT):
+    print('_utils mimetype2ext 将MIME类型转换为扩展名')
     if not isinstance(mt, str):
         if default is not NO_DEFAULT:
             return default
@@ -3055,6 +3253,7 @@ def mimetype2ext(mt, default=NO_DEFAULT):
 
 # 将扩展名转换为MIME类型
 def ext2mimetype(ext_or_url):
+    print('_utils ext2mimetype 将扩展名转换为MIME类型')
     if not ext_or_url:
         return None
     if '.' not in ext_or_url:
@@ -3063,6 +3262,7 @@ def ext2mimetype(ext_or_url):
 
 # 解析编码
 def parse_codecs(codecs_str):
+    print('_utils parse_codecs 解析编码')
     # http://tools.ietf.org/html/rfc6381
     if not codecs_str:
         return {}
@@ -3106,6 +3306,7 @@ def parse_codecs(codecs_str):
 
 # 获取兼容扩展名
 def get_compatible_ext(*, vcodecs, acodecs, vexts, aexts, preferences=None):
+    print('_utils get_compatible_ext 获取兼容扩展名')
     assert len(vcodecs) == len(vexts) and len(acodecs) == len(aexts)
 
     allow_mkv = not preferences or 'mkv' in preferences
@@ -3147,6 +3348,7 @@ def get_compatible_ext(*, vcodecs, acodecs, vexts, aexts, preferences=None):
 
 # 处理URL
 def urlhandle_detect_ext(url_handle, default=NO_DEFAULT):
+    print('_utils urlhandle_detect_ext 处理URL')
     getheader = url_handle.headers.get
 
     cd = getheader('Content-Disposition')
@@ -3167,10 +3369,12 @@ def urlhandle_detect_ext(url_handle, default=NO_DEFAULT):
 
 # 编码数据URI
 def encode_data_uri(data, mime_type):
+    print('_utils encode_data_uri 编码数据URI')
     return 'data:{};base64,{}'.format(mime_type, base64.b64encode(data).decode('ascii'))
 
 # 年龄限制
 def age_restricted(content_limit, age_limit):
+    print('_utils age_restricted 年龄限制')
     """ Returns True iff the content should be blocked """
 
     if age_limit is None:  # No limit set
@@ -3191,6 +3395,7 @@ BOMS = [
 
 # 是否HTML
 def is_html(first_bytes):
+    print('_utils is_html 是否HTML')
     """ Detect whether a file contains HTML by examining its first bytes. """
 
     encoding = 'utf-8'
@@ -3202,6 +3407,7 @@ def is_html(first_bytes):
 
 # 确定协议
 def determine_protocol(info_dict):
+    print('_utils determine_protocol 确定协议')
     protocol = info_dict.get('protocol')
     if protocol is not None:
         return protocol
@@ -3224,6 +3430,7 @@ def determine_protocol(info_dict):
 
 # 渲染表格
 def render_table(header_row, data, delim=False, extra_gap=0, hide_empty=False):
+    print('_utils render_table 渲染表格')
     """ Render a list of rows, each as a list of values.
     Text after a \t will be right aligned """
     def width(string):
@@ -3255,6 +3462,7 @@ def render_table(header_row, data, delim=False, extra_gap=0, hide_empty=False):
 
 # 匹配一个
 def _match_one(filter_part, dct, incomplete):
+    print('_utils _match_one 匹配一个')
     # TODO: Generalize code with YoutubeDL._build_format_filter
     STRING_OPERATORS = {
         '*=': operator.contains,
@@ -3335,6 +3543,7 @@ def _match_one(filter_part, dct, incomplete):
 
 # 匹配字符串
 def match_str(filter_str, dct, incomplete=False):
+    print('_utils match_str 匹配字符串')
     """ Filter a dictionary with a simple string syntax.
     @returns           Whether the filter passes
     @param incomplete  Set of keys that is expected to be missing from dct.
@@ -3347,6 +3556,7 @@ def match_str(filter_str, dct, incomplete=False):
 
 
 def match_filter_func(filters, breaking_filters=None):
+    print('_utils match_filter_func 匹配过滤函数')
     if not filters and not breaking_filters:
         return None
     repr_ = f'{match_filter_func.__module__}.{match_filter_func.__qualname__}({filters}, {breaking_filters})'
@@ -3375,10 +3585,11 @@ def match_filter_func(filters, breaking_filters=None):
 # 下载范围函数
 class download_range_func:
     def __init__(self, chapters, ranges, from_info=False):
+        print('_utils download_range_func __init__ 下载范围函数')
         self.chapters, self.ranges, self.from_info = chapters, ranges, from_info
 
     def __call__(self, info_dict, ydl):
-
+        print('_utils download_range_func __call__ 下载范围函数')
         warning = ('There are no chapters matching the regex' if info_dict.get('chapters')
                    else 'Cannot match chapters since chapter information is unavailable')
         for regex in self.chapters or []:
@@ -3405,17 +3616,21 @@ class download_range_func:
     # 处理负时间戳
     @staticmethod
     def _handle_negative_timestamp(time, info):
+        print('_utils download_range_func _handle_negative_timestamp 处理负时间戳')
         return max(info['duration'] + time, 0) if info.get('duration') and time < 0 else time
     # 相等
     def __eq__(self, other):
+        print('_utils download_range_func __eq__ 相等')
         return (isinstance(other, download_range_func)
                 and self.chapters == other.chapters and self.ranges == other.ranges)
     # 表示
     def __repr__(self):
+        print('_utils download_range_func __repr__ 表示')
         return f'{__name__}.{type(self).__name__}({self.chapters}, {self.ranges})'
 
 # 解析DFXP时间表达式
 def parse_dfxp_time_expr(time_expr):
+    print('_utils parse_dfxp_time_expr 解析DFXP时间表达式')
     if not time_expr:
         return
 
@@ -3429,15 +3644,18 @@ def parse_dfxp_time_expr(time_expr):
 
 # SRT字幕时间码
 def srt_subtitles_timecode(seconds):
+    print('_utils srt_subtitles_timecode SRT字幕时间码')
     return '%02d:%02d:%02d,%03d' % timetuple_from_msec(seconds * 1000)
 
 # ASS字幕时间码
 def ass_subtitles_timecode(seconds):
+    print('_utils ass_subtitles_timecode ASS字幕时间码')
     time = timetuple_from_msec(seconds * 1000)
     return '%01d:%02d:%02d.%02d' % (*time[:-1], time.milliseconds / 10)
 
 # DFXP转换为SRT
 def dfxp2srt(dfxp_data):
+    print('_utils dfxp2srt DFXP转换为SRT')
     """
     @param dfxp_data A bytes-like object containing DFXP data
     @returns A unicode object containing converted SRT data
@@ -3607,6 +3825,7 @@ def dfxp2srt(dfxp_data):
 
 # CLI选项
 def cli_option(params, command_option, param, separator=None):
+    print('_utils cli_option CLI选项')
     param = params.get(param)
     return ([] if param is None
             else [command_option, str(param)] if separator is None
@@ -3614,16 +3833,19 @@ def cli_option(params, command_option, param, separator=None):
 
 # CLI布尔选项
 def cli_bool_option(params, command_option, param, true_value='true', false_value='false', separator=None):
+    print('_utils cli_bool_option CLI布尔选项')
     param = params.get(param)
     assert param in (True, False, None)
     return cli_option({True: true_value, False: false_value}, command_option, param, separator)
 
 # CLI无值选项
 def cli_valueless_option(params, command_option, param, expected_value=True):
+    print('_utils cli_valueless_option CLI无值选项')
     return [command_option] if params.get(param) == expected_value else []
 
 # CLI配置参数
 def cli_configuration_args(argdict, keys, default=[], use_compat=True):
+    print('_utils cli_configuration_args CLI配置参数')
     if isinstance(argdict, (list, tuple)):  # for backward compatibility
         if use_compat:
             return argdict
@@ -3644,6 +3866,7 @@ def cli_configuration_args(argdict, keys, default=[], use_compat=True):
 
 # 配置参数
 def _configuration_args(main_key, argdict, exe, keys=None, default=[], use_compat=True):
+    print('_utils _configuration_args 配置参数')
     main_key, exe = main_key.lower(), exe.lower()
     root_key = exe if main_key == exe else f'{main_key}+{exe}'
     keys = [f'{root_key}{k}' for k in (keys or [''])]
@@ -3851,11 +4074,13 @@ class ISO639Utils:
     # 短代码转换为长代码
     @classmethod
     def short2long(cls, code):
+        print('_utils _configuration_args short2long 短代码转换为长代码')
         """Convert language code from ISO 639-1 to ISO 639-2/T"""
         return cls._lang_map.get(code[:2])
     # 长代码转换为短代码
     @classmethod
     def long2short(cls, code):
+        print('_utils _configuration_args long2short 长代码转换为短代码')
         """Convert language code from ISO 639-2/T to ISO 639-1"""
         for short_name, long_name in cls._lang_map.items():
             if long_name == code:
@@ -4121,6 +4346,7 @@ class ISO3166Utils:
     # 短代码转换为全名
     @classmethod
     def short2full(cls, code):
+        print('_utils _configuration_args short2full 短代码转换为全名')
         """Convert an ISO 3166-2 country code to the corresponding full name"""
         return cls._country_map.get(code.upper())
 
@@ -4372,6 +4598,7 @@ class GeoUtils:
     # 随机IPv4
     @classmethod
     def random_ipv4(cls, code_or_block):
+        print('_utils _configuration_args random_ipv4 随机IPv4')
         if len(code_or_block) == 2:
             block = cls._country_ip_map.get(code_or_block.upper())
             if not block:
@@ -4390,6 +4617,7 @@ class GeoUtils:
 # https://github.com/dlitz/pycrypto/blob/master/lib/Crypto/Util/number.py#L387
 # 长整型转换为字节串
 def long_to_bytes(n, blocksize=0):
+    print('_utils long_to_bytes 长整型转换为字节串')
     """long_to_bytes(n:long, blocksize:int) : string
     Convert a long integer to a byte string.
 
@@ -4420,6 +4648,7 @@ def long_to_bytes(n, blocksize=0):
 
 # 字节串转换为长整型
 def bytes_to_long(s):
+    print('_utils bytes_to_long 字节串转换为长整型')
     """bytes_to_long(string) : long
     Convert a byte string to a long integer.
 
@@ -4437,6 +4666,7 @@ def bytes_to_long(s):
 
 # OHDave的RSA加密
 def ohdave_rsa_encrypt(data, exponent, modulus):
+    print('_utils ohdave_rsa_encrypt OHDave的RSA加密')
     """
     Implement OHDave's RSA algorithm. See http://www.ohdave.com/rsa/
 
@@ -4454,6 +4684,7 @@ def ohdave_rsa_encrypt(data, exponent, modulus):
 
 # PKCS#1填充
 def pkcs1pad(data, length):
+    print('_utils pkcs1pad PKCS#1填充')
     """
     Padding input data with PKCS#1 scheme
 
@@ -4469,6 +4700,7 @@ def pkcs1pad(data, length):
 
 # 基础N表
 def _base_n_table(n, table):
+    print('_utils _base_n_table 基础N表')
     if not table and not n:
         raise ValueError('Either table or n must be specified')
     table = (table or '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')[:n]
@@ -4479,6 +4711,7 @@ def _base_n_table(n, table):
 
 # 基础N编码
 def encode_base_n(num, n=None, table=None):
+    print('_utils encode_base_n 基础N编码')
     """Convert given int to a base-n string"""
     table = _base_n_table(n, table)
     if not num:
@@ -4492,6 +4725,7 @@ def encode_base_n(num, n=None, table=None):
 
 # 基础N解码
 def decode_base_n(string, n=None, table=None):
+    print('_utils decode_base_n 基础N解码')
     """Convert given base-n string to int"""
     table = {char: index for index, char in enumerate(_base_n_table(n, table))}
     result, base = 0, len(table)
@@ -4501,6 +4735,7 @@ def decode_base_n(string, n=None, table=None):
 
 # 解码打包代码
 def decode_packed_codes(code):
+    print('_utils decode_packed_codes 解码打包代码')
     mobj = re.search(PACKED_CODES_RE, code)
     obfuscated_code, base, count, symbols = mobj.groups()
     base = int(base)
@@ -4519,6 +4754,7 @@ def decode_packed_codes(code):
 
 # 凯撒密码
 def caesar(s, alphabet, shift):
+    print('_utils caesar 凯撒密码')
     if shift == 0:
         return s
     l = len(alphabet)
@@ -4528,10 +4764,12 @@ def caesar(s, alphabet, shift):
 
 # ROT47
 def rot47(s):
+    print('_utils rot47 ROT47')
     return caesar(s, r'''!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~''', 47)
 
 # 解析m3u8属性
 def parse_m3u8_attributes(attrib):
+    print('_utils parse_m3u8_attributes 解析m3u8属性')
     info = {}
     for (key, val) in re.findall(r'(?P<key>[A-Z0-9-]+)=(?P<val>"[^"]+"|[^",]+)(?:,|$)', attrib):
         if val.startswith('"'):
@@ -4541,10 +4779,12 @@ def parse_m3u8_attributes(attrib):
 
 # 无符号右移
 def urshift(val, n):
+    print('_utils urshift 无符号右移')
     return val >> n if val >= 0 else (val + 0x100000000) >> n
 
 # 写入xattr
 def write_xattr(path, key, value):
+    print('_utils write_xattr 写入xattr')
     # Windows: Write xattrs to NTFS Alternate Data Streams:
     # http://en.wikipedia.org/wiki/NTFS#Alternate_data_streams_.28ADS.29
     if os.name == 'nt':
@@ -4598,6 +4838,7 @@ def write_xattr(path, key, value):
 
 # 随机生日
 def random_birthday(year_field, month_field, day_field):
+    print('_utils random_birthday 随机生日')
     start_date = dt.date(1950, 1, 1)
     end_date = dt.date(1995, 12, 31)
     offset = random.randint(0, (end_date - start_date).days)
@@ -4610,6 +4851,7 @@ def random_birthday(year_field, month_field, day_field):
 
 # 查找可用端口
 def find_available_port(interface=''):
+    print('_utils find_available_port 查找可用端口')
     try:
         with socket.socket() as sock:
             sock.bind((interface, 0))
@@ -4654,6 +4896,7 @@ LINK_TEMPLATES = {
 
 # IRI转换为URI
 def iri_to_uri(iri):
+    print('_utils iri_to_uri IRI转换为URI')
     """
     Converts an IRI (Internationalized Resource Identifier, allowing Unicode characters) to a URI (Uniform Resource Identifier, ASCII-only).
 
@@ -4698,6 +4941,7 @@ def iri_to_uri(iri):
 
 # 高限制路径
 def to_high_limit_path(path):
+    print('_utils to_high_limit_path 高限制路径')
     if sys.platform in ['win32', 'cygwin']:
         # Work around MAX_PATH limitation on Windows. The maximum allowed length for the individual path segments may still be quite limited.
         return '\\\\?\\' + os.path.abspath(path)
@@ -4707,6 +4951,7 @@ def to_high_limit_path(path):
 # 格式化字段
 @partial_application
 def format_field(obj, field=None, template='%s', ignore=NO_DEFAULT, default='', func=IDENTITY):
+    print('_utils format_field 格式化字段')
     val = traversal.traverse_obj(obj, *variadic(field))
     if not val if ignore is NO_DEFAULT else val in variadic(ignore):
         return default
@@ -4714,6 +4959,7 @@ def format_field(obj, field=None, template='%s', ignore=NO_DEFAULT, default='', 
 
 # 清理播客URL
 def clean_podcast_url(url):
+    print('_utils clean_podcast_url 清理播客URL')
     url = re.sub(r'''(?x)
         (?:
             (?:
@@ -4739,10 +4985,12 @@ _HEX_TABLE = '0123456789abcdef'
 
 # 随机UUIDv4
 def random_uuidv4():
+    print('_utils random_uuidv4 随机UUIDv4')
     return re.sub(r'[xy]', lambda x: _HEX_TABLE[random.randint(0, 15)], 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx')
 
 # 创建目录
 def make_dir(path, to_screen=None):
+    print('_utils make_dir 创建目录')
     try:
         dn = os.path.dirname(path)
         if dn:
@@ -4755,12 +5003,14 @@ def make_dir(path, to_screen=None):
 
 # 获取可执行文件路径
 def get_executable_path():
+    print('_utils get_executable_path 获取可执行文件路径')
     from ..update import _get_variant_and_executable_path
 
     return os.path.dirname(os.path.abspath(_get_variant_and_executable_path()[1]))
 
 # 获取用户配置目录
 def get_user_config_dirs(package_name):
+    print('_utils get_user_config_dirs 获取用户配置目录')
     # .config (e.g. ~/.config/package_name)
     xdg_config_home = os.getenv('XDG_CONFIG_HOME') or compat_expanduser('~/.config')
     yield os.path.join(xdg_config_home, package_name)
@@ -4775,11 +5025,13 @@ def get_user_config_dirs(package_name):
 
 # 获取系统配置目录
 def get_system_config_dirs(package_name):
+    print('_utils get_system_config_dirs 获取系统配置目录')
     # /etc/package_name
     yield os.path.join('/etc', package_name)
 
 # 时间秒
 def time_seconds(**kwargs):
+    print('_utils time_seconds 时间秒')
     """
     Returns TZ-aware time in seconds since the epoch (1970-01-01T00:00:00Z)
     """
@@ -4792,6 +5044,7 @@ def time_seconds(**kwargs):
 # implemented following JWS https://www.rfc-editor.org/rfc/rfc7515.html
 # 使用HS256算法创建JSON Web Signature (jws)
 def jwt_encode_hs256(payload_data, key, headers={}):
+    print('_utils jwt_encode_hs256 使用HS256算法创建JSON Web Signature (jws)')
     header_data = {
         'alg': 'HS256',
         'typ': 'JWT',
@@ -4808,6 +5061,7 @@ def jwt_encode_hs256(payload_data, key, headers={}):
 # can be extended in future to verify the signature and parse header and return the algorithm used if it's not HS256
 # 可以扩展将来验证签名并解析头并返回使用的算法（如果不是HS256）
 def jwt_decode_hs256(jwt):
+    print('_utils jwt_decode_hs256 使用HS256算法解码JSON Web Signature (jws)')
     header_b64, payload_b64, signature_b64 = jwt.split('.')
     # add trailing ='s that may have been stripped, superfluous ='s are ignored
     return json.loads(base64.urlsafe_b64decode(f'{payload_b64}==='))
@@ -4818,6 +5072,7 @@ WINDOWS_VT_MODE = False if os.name == 'nt' else None
 # 支持终端序列
 @functools.cache
 def supports_terminal_sequences(stream):
+    print('_utils supports_terminal_sequences 支持终端序列')
     if os.name == 'nt':
         if not WINDOWS_VT_MODE:
             return False
@@ -4830,6 +5085,7 @@ def supports_terminal_sequences(stream):
 
 # 启用Windows VT模式
 def windows_enable_vt_mode():
+    print('_utils windows_enable_vt_mode 启用Windows VT模式')
     """Ref: https://bugs.python.org/issue30075 """
     if get_windows_version() < (10, 0, 10586):
         return
@@ -4865,20 +5121,24 @@ _terminal_sequences_re = re.compile('\033\\[[^m]+m')
 
 # 移除终端序列
 def remove_terminal_sequences(string):
+    print('_utils remove_terminal_sequences 移除终端序列')
     return _terminal_sequences_re.sub('', string)
 
 # 数字位数
 def number_of_digits(number):
+    print('_utils number_of_digits 数字位数')
     return len('%d' % number)
 
 # 连接非空值
 def join_nonempty(*values, delim='-', from_dict=None):
+    print('_utils join_nonempty 连接非空值')
     if from_dict is not None:
         values = (traversal.traverse_obj(from_dict, variadic(v)) for v in values)
     return delim.join(map(str, filter(None, values)))
 
 # 缩放缩略图到最大格式宽度
 def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
+    print('_utils scale_thumbnails_to_max_format_width 缩放缩略图到最大格式宽度')
     """
     Find the largest format dimensions in terms of video width and, for each thumbnail:
     * Modify the URL: Match the width with the provided regex and replace with the former width
@@ -4901,6 +5161,7 @@ def scale_thumbnails_to_max_format_width(formats, thumbnails, url_width_re):
 
 # 解析HTTP范围
 def parse_http_range(range):
+    print('_utils parse_http_range 解析HTTP范围')
     """ Parse value of "Range" or "Content-Range" HTTP header into tuple. """
     if not range:
         return None, None, None
@@ -4911,6 +5172,7 @@ def parse_http_range(range):
 
 # 读取STDIN
 def read_stdin(what):
+    print('_utils read_stdin 读取STDIN')
     if what:
         eof = 'Ctrl+Z' if os.name == 'nt' else 'Ctrl+D'
         write_string(f'Reading {what} from STDIN - EOF ({eof}) to end:\n')
@@ -4918,6 +5180,7 @@ def read_stdin(what):
 
 # 确定文件编码
 def determine_file_encoding(data):
+    print('_utils determine_file_encoding 确定文件编码')
     """
     Detect the text encoding used
     @returns (encoding, bytes to skip)
@@ -4946,16 +5209,19 @@ class Config:
     _plugin_dirs = None
 
     def __init__(self, parser, label=None):
+        print('_utils Config __init__ 配置')
         self.parser, self.label = parser, label
         self._loaded_paths, self.configs = set(), []
 
     def init(self, args=None, filename=None):
+        print('_utils Config init 加载配置')
         assert not self.__initialized
         self.own_args, self.filename = args, filename
         return self.load_configs()
 
     # 加载配置
     def load_configs(self):
+        print('_utils Config load_configs 加载配置')
         directory = ''
         if self.filename:
             location = os.path.realpath(self.filename)
@@ -4984,6 +5250,7 @@ class Config:
 
     # 字符串表示
     def __str__(self):
+        print('_utils Config __str__ 字符串表示')
         label = join_nonempty(
             self.label, 'config', f'"{self.filename}"' if self.filename else '',
             delim=' ')
@@ -4995,6 +5262,7 @@ class Config:
     # 读取文件
     @staticmethod
     def read_file(filename, default=[]):
+        print('_utils Config read_file 读取文件')
         try:
             optionf = open(filename, 'rb')
         except OSError:
@@ -5017,6 +5285,7 @@ class Config:
     # 隐藏登录信息
     @staticmethod
     def hide_login_info(opts):
+        print('_utils Config hide_login_info 隐藏登录信息')
         PRIVATE_OPTS = {'-p', '--password', '-u', '--username', '--video-password', '--ap-password', '--ap-username'}
         eqre = re.compile('^(?P<key>' + ('|'.join(re.escape(po) for po in PRIVATE_OPTS)) + ')=.+$')
 
@@ -5035,6 +5304,7 @@ class Config:
 
     # 添加配置
     def append_config(self, *args, label=None):
+        print('_utils Config append_config 添加配置')
         config = type(self)(self.parser, label)
         config._loaded_paths = self._loaded_paths
         if config.init(*args):
@@ -5043,25 +5313,30 @@ class Config:
     # 所有参数
     @property
     def all_args(self):
+        print('_utils Config all_args 所有参数')
         for config in reversed(self.configs):
             yield from config.all_args
         yield from self.parsed_args or []
 
     # 解析已知参数
     def parse_known_args(self, **kwargs):
+        print('_utils Config parse_known_args 解析已知参数')
         return self.parser.parse_known_args(self.all_args, **kwargs)
 
     # 解析参数
     def parse_args(self):
+        print('_utils Config parse_args 解析参数')
         return self.parser.parse_args(self.all_args)
 
 # 合并头
 def merge_headers(*dicts):
+    print('_utils merge_headers 合并头')
     """Merge dicts of http headers case insensitively, prioritizing the latter ones"""
     return {k.title(): v for k, v in itertools.chain.from_iterable(map(dict.items, dicts))}
 
 # 缓存方法
 def cached_method(f):
+    print('_utils cached_method 缓存方法')
     """Cache a method"""
     signature = inspect.signature(f)
 
@@ -5081,16 +5356,19 @@ def cached_method(f):
 class classproperty:
     """property access for class methods with optional caching"""
     def __new__(cls, func=None, *args, **kwargs):
+        print('_utils classproperty __new__ 类属性')
         if not func:
             return functools.partial(cls, *args, **kwargs)
         return super().__new__(cls)
 
     def __init__(self, func, *, cache=False):
+        print('_utils classproperty __init__ 类属性')
         functools.update_wrapper(self, func)
         self.func = func
         self._cache = {} if cache else None
 
     def __get__(self, _, cls):
+        print('_utils classproperty __get__ 类属性')
         if self._cache is None:
             return self.func(cls)
         elif cls not in self._cache:
@@ -5100,19 +5378,23 @@ class classproperty:
 # 函数表示
 class function_with_repr:
     def __init__(self, func, repr_=None):
+        print('_utils function_with_repr __init__ 函数表示')
         functools.update_wrapper(self, func)
         self.func, self.__repr = func, repr_
 
     def __call__(self, *args, **kwargs):
+        print('_utils function_with_repr __call__ 函数表示')
         return self.func(*args, **kwargs)
 
     # 设置表示
     @classmethod
     def set_repr(cls, repr_):
+        print('_utils function_with_repr set_repr 设置表示')
         return functools.partial(cls, repr_=repr_)
 
     # 表示
     def __repr__(self):
+        print('_utils function_with_repr __repr__ 表示')
         if self.__repr:
             return self.__repr
         return f'{self.func.__module__}.{self.func.__qualname__}'
@@ -5123,10 +5405,12 @@ class Namespace(types.SimpleNamespace):
 
     # 迭代
     def __iter__(self):
+        print('_utils Namespace __iter__ 迭代')
         return iter(self.__dict__.values())
 
     @property
     def items_(self):
+        print('_utils Namespace items_ 命名空间')
         return self.__dict__.items()
 
 # 媒体扩展
@@ -5263,12 +5547,14 @@ class _UnsafeExtensionError(Exception):
     ])
 
     def __init__(self, extension, /):
+        print('_utils _UnsafeExtensionError __init__ 不安全扩展错误')
         super().__init__(f'unsafe file extension: {extension!r}')
         self.extension = extension
 
     # 清理扩展
     @classmethod
     def sanitize_extension(cls, extension, /, *, prepend=False):
+        print('_utils _UnsafeExtensionError sanitize_extension 清理扩展')
         if extension is None:
             return None
 
@@ -5297,25 +5583,30 @@ class RetryManager:
     attempt, _error = 0, None
 
     def __init__(self, _retries, _error_callback, **kwargs):
+        print('_utils RetryManager __init__ 重试管理器')
         self.retries = _retries or 0
         self.error_callback = functools.partial(_error_callback, **kwargs)
 
     # 是否重试
     def _should_retry(self):
+        print('_utils RetryManager _should_retry 是否重试')
         return self._error is not NO_DEFAULT and self.attempt <= self.retries
 
     @property
     def error(self):
+        print('_utils RetryManager error 错误')
         if self._error is NO_DEFAULT:
             return None
         return self._error
 
     @error.setter
     def error(self, value):
+        print('_utils RetryManager error setter 错误设置')
         self._error = value
 
     # 迭代
     def __iter__(self):
+        print('_utils RetryManager __iter__ 迭代')
         while self._should_retry():
             self.error = NO_DEFAULT
             self.attempt += 1
@@ -5326,6 +5617,7 @@ class RetryManager:
     # 报告重试
     @staticmethod
     def report_retry(e, count, retries, *, sleep_func, info, warn, error=None, suffix=None):
+        print('_utils RetryManager report_retry 报告重试')
         """Utility function for reporting retries"""
         if count > retries:
             if error:
@@ -5346,12 +5638,14 @@ class RetryManager:
 # 部分应用
 @partial_application
 def make_archive_id(ie, video_id):
+    print('_utils make_archive_id 制作存档ID')
     ie_key = ie if isinstance(ie, str) else ie.ie_key()
     return f'{ie_key.lower()} {video_id}'
 
 # 截断字符串
 @partial_application
 def truncate_string(s, left, right=0):
+    print('_utils truncate_string 截断字符串')
     assert left > 3 and right >= 0
     if s is None or len(s) <= left + right:
         return s
@@ -5359,6 +5653,7 @@ def truncate_string(s, left, right=0):
 
 # 从选项中获取有序集合
 def orderedSet_from_options(options, alias_dict, *, use_regex=False, start=None):
+    print('_utils orderedSet_from_options 从选项中获取有序集合')
     assert 'all' in alias_dict, '"all" alias is required'
     requested = list(start or [])
     for val in options:
@@ -5482,6 +5777,7 @@ class FormatSorter:
     }
 
     def __init__(self, ydl, field_preference):
+        print('_utils FormatSorter __init__ 格式排序器')
         self.ydl = ydl
         self._order = []
         self.evaluate_params(self.ydl.params, field_preference)
@@ -5490,6 +5786,7 @@ class FormatSorter:
 
     # 获取字段设置
     def _get_field_setting(self, field, key):
+        print('_utils FormatSorter _get_field_setting 获取字段设置')
         if field not in self.settings:
             if key in ('forced', 'priority'):
                 return False
@@ -5510,6 +5807,7 @@ class FormatSorter:
 
     # 解析字段值
     def _resolve_field_value(self, field, value, convert_none=False):
+        print('_utils FormatSorter _resolve_field_value 解析字段值')
         if value is None:
             if not convert_none:
                 return None
@@ -5545,6 +5843,7 @@ class FormatSorter:
 
     # 评估参数
     def evaluate_params(self, params, sort_extractor):
+        print('_utils FormatSorter evaluate_params 评估参数')
         self._use_free_order = params.get('prefer_free_formats', False)
         self._sort_user = params.get('format_sort', [])
         self._sort_extractor = sort_extractor
@@ -5604,6 +5903,7 @@ class FormatSorter:
 
     # 打印详细信息
     def print_verbose_info(self, write_debug):
+        print('_utils FormatSorter print_verbose_info 打印详细信息')
         if self._sort_user:
             write_debug('Sort order given by user: {}'.format(', '.join(self._sort_user)))
         if self._sort_extractor:
@@ -5618,6 +5918,7 @@ class FormatSorter:
 
     # 从值计算字段偏好
     def _calculate_field_preference_from_value(self, format_, field, type_, value):
+        print('_utils FormatSorter _calculate_field_preference_from_value 从值计算字段偏好')
         reverse = self._get_field_setting(field, 'reverse')
         closest = self._get_field_setting(field, 'closest')
         limit = self._get_field_setting(field, 'limit')
@@ -5648,6 +5949,7 @@ class FormatSorter:
 
     # 计算字段偏好
     def _calculate_field_preference(self, format_, field):
+        print('_utils FormatSorter _calculate_field_preference 计算字段偏好')
         type_ = self._get_field_setting(field, 'type')  # extractor, boolean, ordered, field, multiple
         get_value = lambda f: format_.get(self._get_field_setting(f, 'field'))
         if type_ == 'multiple':
@@ -5662,6 +5964,7 @@ class FormatSorter:
     # 填充排序字段
     @staticmethod
     def _fill_sorting_fields(format):
+        print('_utils FormatSorter _fill_sorting_fields 填充排序字段')
         # Determine missing protocol
         if not format.get('protocol'):
             format['protocol'] = determine_protocol(format)
@@ -5703,6 +6006,7 @@ class FormatSorter:
 
 
 def filesize_from_tbr(tbr, duration):
+    print('_utils filesize_from_tbr 从TBR计算文件大小')
     """
     @param tbr:      Total bitrate in kbps (1000 bits/sec)
     @param duration: Duration in seconds
@@ -5717,34 +6021,41 @@ def filesize_from_tbr(tbr, duration):
 # 日志记录器
 class _YDLLogger:
     def __init__(self, ydl=None):
+        print('_utils _YDLLogger __init__ 日志记录器')
         self._ydl = ydl
 
     # 调试
     def debug(self, message):
+        print('_utils _YDLLogger debug 调试')
         if self._ydl:
             self._ydl.write_debug(message)
 
     # 信息
     def info(self, message):
+        print('_utils _YDLLogger info 信息')
         if self._ydl:
             self._ydl.to_screen(message)
 
     # 警告
     def warning(self, message, *, once=False):
+        print('_utils _YDLLogger warning 警告')
         if self._ydl:
             self._ydl.report_warning(message, once)
 
     # 错误
     def error(self, message, *, is_error=True):
+        print('_utils _YDLLogger error 错误')
         if self._ydl:
             self._ydl.report_error(message, is_error=is_error)
 
     # 标准输出
     def stdout(self, message):
+        print('_utils _YDLLogger stdout 标准输出')
         if self._ydl:
             self._ydl.to_stdout(message)
 
     # 标准错误
     def stderr(self, message):
+        print('_utils _YDLLogger stderr 标准错误')
         if self._ydl:
             self._ydl.to_stderr(message)
